@@ -34,22 +34,25 @@
 #define FP 30
 #define RA 31
 
-typedef struct IFID{
+typedef struct Ifid{
+  uint8_t x;
+}Ifid;
 
-}IFID;
+typedef struct Idex {
+  uint8_t x;
+}Idex;
 
-typedef struct IDEX {
+typedef struct Exmem {
+  uint8_t x;
+}Exmem;
 
-}IDEX;
-
-typedef struct EXMEM {
-
-}EXMEM;
-
-typedef struct MEMWB {
-
-}MEMWB;
+typedef struct Memwb {
+  uint8_t x;
+}Memwb;
 
 uint32_t regs[32];      //Registers, if you want to modify T0 you can use regs[T0]
-
+Ifid IFID;
+Idex IDEX;
+Exmem EXMEM;
+Memwb MEMWB;
 #endif

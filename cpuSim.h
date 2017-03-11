@@ -8,6 +8,8 @@ We don't want a separate variable for the pc, do we?
 #define CPUSIM
 
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 #include "registers.h"
 #include "control.h"
 

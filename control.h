@@ -1,6 +1,9 @@
 #ifndef CONTROL
 #define CONTROL
 
+#include <stdint.h>
+#include <string.h>
+
 #define OPCODE_R 0b000000
 #define OPCODE_LW 0b100011
 #define OPCODE_SW 0b101011
@@ -19,6 +22,6 @@ typedef struct ControlUnit {
 }ControlUnit;
 
 ControlUnit controlUnit;
-int setControls();
+int setControls(uint8_t opcode);
 
 #endif

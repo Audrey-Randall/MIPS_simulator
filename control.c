@@ -45,6 +45,6 @@ int setControls(uint8_t opcode){
       break;
     default:
       return -1;
-    return 0;
   }
+  return 0;
 }
