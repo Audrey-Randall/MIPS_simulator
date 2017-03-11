@@ -1,0 +1,8 @@
+0x2116022 //sub $t4, $s0, $s1 - Opcode = 0, rd = 12, rs = 16, rt = 17, shamt = 0, funct = 34
+0x8C0C0 //sll $t8, $t0, 3 - Opcode = 0, rd = 24, rs = 8, rt = 0, shamt = 2, funct = 0 - got this one wrong
+0x15F7F0 //sw $ra, 16($sp), Opcode = 43, rs =29, rt = 31, immediate 16 - got 1/2
+0x2088009c //addi $t0, $a0, -100, Opcode = 8, rs = 4, rt = 8, immediate -100 - got 1/2
+
+0x026c4020 //add $t0, $s3, $t4_
+0x3482a5a5 //ori $v0, $a0, -23131__
+0x2a282710 //_slti $t0, $s1, 10000___
