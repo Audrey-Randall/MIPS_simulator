@@ -1,0 +1,11 @@
+Things that need to be coded:
+
+(pseudocode lecture 19)
+
+Parser
+Units for the pipeline
+5 stages
+implement the clock
+branch predictions/forwarding (3)
+current instruction struct
+branch detection (Branch detection should be in the ID, Decode, stage of the pipe)
