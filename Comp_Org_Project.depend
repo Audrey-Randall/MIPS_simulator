@@ -1,0 +1,27 @@
+# depslib dependency file v1.0
+1489260337 source:c:\users\vanika\documents\cb_comporg_project\comp_org_project\main.c
+	<stdio.h>
+	<stdlib.h>
+	<stdint.h>
+	"cpuSim.h"
+	"control.h"
+
+1489258458 source:c:\users\vanika\documents\cb_comporg_project\comp_org_project\control.c
+	"control.h"
+
+1489258169 c:\users\vanika\documents\cb_comporg_project\comp_org_project\control.h
+	<stdint.h>
+	<string.h>
+
+1489258859 source:c:\users\vanika\documents\cb_comporg_project\comp_org_project\cpusim.c
+	"cpuSim.h"
+
+1489260491 c:\users\vanika\documents\cb_comporg_project\comp_org_project\cpusim.h
+	<stdio.h>
+	<stdint.h>
+	<string.h>
+	"registers.h"
+	"control.h"
+
+1489258169 c:\users\vanika\documents\cb_comporg_project\comp_org_project\registers.h
+

@@ -17,6 +17,7 @@ We don't want a separate variable for the pc, do we?
 
 uint32_t memory[MEMSIZE];    //Program memory
 
+
 //Functions
 void init();                //Initializes everything
 int parse(char* file);      //Reads instructions from input file and stores them in memory array

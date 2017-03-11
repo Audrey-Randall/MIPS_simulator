@@ -46,8 +46,4 @@ int32_t mux(int32_t zero, int32_t one, uint8_t ctrl){
   return ctrl?one:zero;
 }
 
-int main(){
-  printf("Starting simulation\n");
-  init();
-  //printf("Sign ext of 0xffff is %d", signExt(0xffff));  
-}
+
