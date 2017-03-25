@@ -20,19 +20,8 @@ int main()
 	if (file) {
         int chr = 0;
 		while(1) {
-			if( feof(file) ) break;
-			info = fgetc(file);
-//			for (i=0; i<11; i++) {
-//
-//
-//                if (i > 1 && info != '\n') {
-//                    hexarray[i-2] = info; //sets the first number into char array of hex numbers
-//                    //memory[counter] = info;
-//                    printf("%c",hexarray[i-2]);
-//                }
-//			}
-//			printf("\n");
-			//to print char array of hex numbers
+			  if( feof(file) ) break;
+			  info = fgetc(file);
             chr++;
         }
         for (j=0; j<8; j++) {
