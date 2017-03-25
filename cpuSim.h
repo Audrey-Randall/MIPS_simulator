@@ -15,12 +15,24 @@ We don't want a separate variable for the pc, do we?
 
 #define MEMSIZE 4096
 
+typedef struct Instruction{
+  uint8_t opcode:6;
+  uint8_t rs:5;
+  uint8_t rt:5;
+  uint8_t rd:5;
+  int8_t shamt:5;
+  uint8_t funct:6;
+  int16_t imm;
+  uint32_t addr:26;
+}Instruction;
+
 uint32_t memory[MEMSIZE];    //Program memory
+Instruction curIns;
 
 
 //Functions
 void init();                //Initializes everything
-int parse(char* file);      //Reads instructions from input file and stores them in memory array
+int setCurIns();
 int32_t ALU(int x, int y);
 int32_t signExt(int32_t offsetField);
 int dataMemoryUnit(int32_t addr, int32_t writeData);

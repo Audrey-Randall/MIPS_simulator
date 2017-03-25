@@ -55,4 +55,5 @@ Ifid IFID;
 Idex IDEX;
 Exmem EXMEM;
 Memwb MEMWB;
+uint32_t PC;
 #endif

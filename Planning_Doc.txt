@@ -7,5 +7,5 @@ Units for the pipeline
 5 stages
 implement the clock
 branch predictions/forwarding (3)
-current instruction struct
+current instruction struct (Audrey is doing this right now)
 branch detection (Branch detection should be in the ID, Decode, stage of the pipe)
