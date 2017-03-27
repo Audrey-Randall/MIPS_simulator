@@ -59,7 +59,7 @@ int32_t ALU(int x, int y) {
 }
 
 int32_t signExt(int32_t offsetField) {
-  uint8_t sign = offsetField >> 15;
+  uint8_t sign = (offsetField >> 15) & 0x1;
   uint32_t mask = sign?0xffff0000:0x00000000;
   return (int32_t)(offsetField|mask);
 }
@@ -77,6 +77,11 @@ void FetchStage(){
 }
 void DecodeStage(){
   setControls(curIns.opcode);
+  //Read 2 registers to pass to ALU or read one register and use signExt unit for immediate value
+  int arg1, arg2;
+  arg1 = registers[curIns.rs];
+  arg2 = controlUnit.ALUsrc ? signExt(curIns.imm) : registers[curIns.rt];
+  ALU(arg1, arg2);
 }
 void ExecuteStage(){
 
