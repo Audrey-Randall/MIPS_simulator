@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "cpuSim.h"
-#include "control.h"
+//#include "control.h"
 
 FILE *file;
 
@@ -41,16 +41,24 @@ int main(int argc, char** argv) {
   init();
 
   //Read instructions from file into memory array
-  if(parse("Simulation_example.txt")) {
+  /*if(parse("Simulation_example.txt")) {
     printf("Cannot read machine code\n");
     exit(1);
-  }
+  }*/
+  #ifdef DEBUG
+  memory[0] = 0x2116022;
+  memory[1] = 0x8C0C0;
+  memory[2] = 0x15F7F0;
+  memory[3] = 0x2088009c;
+  memory[4] = 0xCA9B987;
+  #endif
 
-  while(1) {
-    //Set values in curIns
-    setCurIns();
-
-    //TODO: all the things
+  while(PC < 5) {
+    FetchStage();
+    DecodeStage();
+    ExecuteStage();
+    MemoryStage();
+    WritebackStage();
 
     //Cleanup
     PC++;  //if it wasn't messed with elsewhere

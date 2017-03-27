@@ -15,21 +15,27 @@ int setCurIns(){
   uint32_t ci = memory[PC];  //current instruction
   uint8_t opcode = (ci & 0xfc000000)>>26; //most significant 6 bits
   if(opcode==0x0){
-    printf("R instruction\n");
+    //printf("R instruction\n");
     curIns.rs = (ci & 0x03E00000)>>21;
     curIns.rt = (ci & 0x001F0000)>>16;
     curIns.rd = (ci & 0x0000F800)>>11;
     curIns.shamt = (ci & 0x000007C0)>>6;
     curIns.funct = (ci & 0x0000003F);
   } else if (opcode==0x2 || opcode==0x3){
-    printf("J instruc\n");
+    //printf("J instruc\n");
     curIns.addr = (ci & 0x03FFFFFF);
   } else {
-    printf("I instruc\n");
+    //printf("I instruc\n");
     curIns.rs = (ci & 0x03E00000)>>21;
     curIns.rt = (ci & 0x001F0000)>>16;
     curIns.imm = (ci & 0x0000ffff);
   }
+  #if DEBUG==1
+  printf("\n***setCurIns***\n");
+  if(opcode==0x0) printf("R function\nRS: %d\nRT: %d\nRD: %d\nShamt: %d\nFunct: %d\n", curIns.rs, curIns.rt, curIns.rd, curIns.shamt, curIns.funct);
+  else if(opcode==0x2||opcode==0x3) printf("J instruction\nAddress w/o shift: %04X", curIns.addr);
+  else printf("I instruction\nOpcode: %d\nRS: %d\nRT: %d\nImm: %d\n", opcode, curIns.rs, curIns.rt, curIns.imm);
+  #endif
   return 0;
 }
 
@@ -64,4 +70,20 @@ int dataMemoryUnit(int32_t addr, int32_t writeData){
 
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl){
   return ctrl?one:zero;
+}
+
+void FetchStage(){
+  setCurIns();
+}
+void DecodeStage(){
+  setControls(curIns.opcode);
+}
+void ExecuteStage(){
+
+}
+void MemoryStage(){
+
+}
+void WritebackStage(){
+
 }

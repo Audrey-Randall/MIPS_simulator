@@ -38,6 +38,12 @@ int32_t signExt(int32_t offsetField);
 int dataMemoryUnit(int32_t addr, int32_t writeData);
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl);
 
+void FetchStage();
+void DecodeStage();
+void ExecuteStage();
+void MemoryStage();
+void WritebackStage();
+
 
 
 #endif

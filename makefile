@@ -1,5 +1,6 @@
 CC=gcc
-#CFLAGS= no flags yet
+CFLAGS=-O3
+local_CFLAGS=-O3
 DEPS= cpuSim.h control.h registers.h
 
 # %.o: %.c means everything matching the pattern filename.o depends on filename.c
@@ -10,11 +11,20 @@ DEPS= cpuSim.h control.h registers.h
 # $< is first item in DEPS
 # $@ is left side of colon, $^ is right side
 
+.PHONY: all clean debug
+
+debug: local_CFLAGS += -DDEBUG
+debug: executable
+
+all: local_CFLAGS=$(filter-out -DDEBUG,$(CFLAGS))
+all: executable
+
 %.o: %.c $(DEPS)
-	$(CC) -c -o $@ $<
+	$(CC) -c -o $@ $< $(local_CFLAGS)
 
-all: main.o cpuSim.o control.o
-	gcc -o cpuSim $^
+executable: main.o cpuSim.o control.o
+	$(CC) -o cpuSim $^
 
-
-
+clean:
+	local_CFLAGS=$(filter-out -DDEBUG,$(CFLAGS))
+	rm *.exe *.o

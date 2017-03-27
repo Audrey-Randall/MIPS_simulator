@@ -1,8 +1,19 @@
 0x2116022 //sub $t4, $s0, $s1 - Opcode = 0, rd = 12, rs = 16, rt = 17, shamt = 0, funct = 34
-0x8C0C0 //sll $t8, $t0, 3 - Opcode = 0, rd = 24, rs = 8, rt = 0, shamt = 2, funct = 0 - got this one wrong
-0x15F7F0 //sw $ra, 16($sp), Opcode = 43, rs =29, rt = 31, immediate 16 - got 1/2
-0x2088009c //addi $t0, $a0, -100, Opcode = 8, rs = 4, rt = 8, immediate -100 - got 1/2
+0x8C0C0 //sll $t8, $t0, 3 - Opcode = 0, rd = 0, rs = 8, rt = 24, shamt = 3, funct = 0
+0x0015F7F0 //sw $ra, 16($sp), Opcode = 0, rd = 0, rs = 21, rt = 30, shamt = 31, funct = 48
+0x2088009c //addi $t0, $a0, -100, Opcode = 8, rs = 4, rt = 8, immediate 156
 
 0x026c4020 //add $t0, $s3, $t4_
 0x3482a5a5 //ori $v0, $a0, -23131__
 0x2a282710 //_slti $t0, $s1, 10000___
+
+
+0x0008C0C0
+op      rd    rs    rt   shamt funct
+000000 00000 01000 11000 00011 000000
+
+0x0015F7F0
+000000 00000 10101 11110 11111 110000
+
+0xCA9B987 //opcode = 3, addr = 0xA9B987
+000011 0010 1010 0110 1110 0110 0001 11
