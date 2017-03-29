@@ -44,6 +44,8 @@ void ExecuteStage();
 void MemoryStage();
 void WritebackStage();
 
+int textFileConversion(FILE *fp, int * instructionMemory);
+
 
 
 #endif

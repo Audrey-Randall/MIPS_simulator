@@ -4,41 +4,20 @@
 #include "cpuSim.h"
 //#include "control.h"
 
-FILE *file;
-
-int parse(char* filename){
-  int i,j;
-  printf("Starting simulation\n");
-  init();
-//printf("Sign ext of 0xffff is %d", signExt(0xffff));
-  char hexarray[11];
-  char info;
-  uint8_t counter = 0;
-  file = fopen(filename,"r"); //r is read-only option
-  if(file==NULL){
-    perror("ERROR: Cannot open file");
-    return -1;
-  }
-  if (file) {
-      int chr = 0;
-      while(1) {
-          if( feof(file) ) break;
-          info = fgetc(file);
-              chr++;
-          }
-          for (j=0; j<8; j++) {
-              printf("%c",hexarray[j]);
-          }
-          printf("\n");
-  }
-  //printf("%c", file);
-  fclose(file);
-  return 0;
-}
-
 int main(int argc, char** argv) {
   //Initialize globals
   init();
+
+  //we are able to take the character by character line-up and convert into a string. problem is that we have to convert
+   FILE *infile;
+   //int * memory = (char*)malloc(sizeof(int)*6); //address memory -> dynamic allocation
+   int fileFlag = -1;
+
+   //check that text file conversion happened properly
+   //NOTE: eventually make text file as input to main (argv,argc) so prof can run with his instruction set
+   while(fileFlag) {
+        fileFlag = textFileConversion(infile,memory);
+   }
 
   //Read instructions from file into memory array
   /*if(parse("Simulation_example.txt")) {
@@ -46,11 +25,11 @@ int main(int argc, char** argv) {
     exit(1);
   }*/
   #ifdef DEBUG
-  memory[0] = 0x2116022;
+  /*memory[0] = 0x2116022;
   memory[1] = 0x8C0C0;
   memory[2] = 0x15F7F0;
   memory[3] = 0x2088009c;
-  memory[4] = 0xCA9B987;
+  memory[4] = 0xCA9B987;*/
   #endif
 
   while(PC < 5) {
