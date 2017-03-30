@@ -11,53 +11,77 @@ void init(){
   PC = 0;
 }
 
-int setCurIns(){
-  uint32_t ci = memory[PC];  //current instruction
-  uint8_t opcode = (ci & 0xfc000000)>>26; //most significant 6 bits
-  if(opcode==0x0){
-    //printf("R instruction\n");
-    curIns.rs = (ci & 0x03E00000)>>21;
-    curIns.rt = (ci & 0x001F0000)>>16;
-    curIns.rd = (ci & 0x0000F800)>>11;
-    curIns.shamt = (ci & 0x000007C0)>>6;
-    curIns.funct = (ci & 0x0000003F);
-  } else if (opcode==0x2 || opcode==0x3){
-    //printf("J instruc\n");
-    curIns.addr = (ci & 0x03FFFFFF);
-  } else {
-    //printf("I instruc\n");
-    curIns.rs = (ci & 0x03E00000)>>21;
-    curIns.rt = (ci & 0x001F0000)>>16;
-    curIns.imm = (ci & 0x0000ffff);
-  }
-  #if DEBUG==1
-  printf("\n***setCurIns***\n");
-  if(opcode==0x0) printf("R function\nRS: %d\nRT: %d\nRD: %d\nShamt: %d\nFunct: %d\n", curIns.rs, curIns.rt, curIns.rd, curIns.shamt, curIns.funct);
-  else if(opcode==0x2||opcode==0x3) printf("J instruction\nAddress w/o shift: %04X", curIns.addr);
-  else printf("I instruction\nOpcode: %d\nRS: %d\nRT: %d\nImm: %d\n", opcode, curIns.rs, curIns.rt, curIns.imm);
-  #endif
-  return 0;
-}
 
-int32_t ALU(int x, int y) {
+int32_t ALU(uint8_t input1, uint8_t input2, int err, uint8_t result) {
   //return x ALUop y
   uint8_t oper = 0x0;
+  uint8_t err = 0;
   switch(controlUnit.ALUop){
-    case 0b00:
-      oper = 0x2;
+    case 0b00: //this means that it's a load/store instruction
+      oper = 0x2; //(0010) - add
       break;
-    case 0b01:
-      oper = 0x6;
+    case 0b01: //this means that it's a branch statement
+      oper = 0x6; // (0110) - subtract
       break;
-    case 0b10:
-      //switch (funct field of instruc)
+    case 0b10: //this means that it's an R-type instruction
+      //analyze funct field
+      switch(curIns.opcode) {
+        case 0b100000:
+            oper = 0x2; //(0010) - add
+            break;
+        case 0b100010:
+            oper = 0x6; //(0110) - subtract
+            break;
+        case 0b100100: //bit-wise AND
+            oper = 0x0; //(0000) - bitwise AND
+            break;
+        case 0b100101: //bit-wise OR
+            oper = 0x1; //(0001) - bitwise OR
+            break;
+        case 0b101010: //set on less than
+            oper = 0x111; //(0111) - set on less than
+            break:
+        default: err = 0b1;
+      }
       break;
     case 0b11:
-      printf("ERROR: ALUop was 0x11, Audrey didn't think this was possible\n");
+        err = 1;
+        break;
+  }
+  if (err = 1) {
+    printf("Error with ALU control unit. Please check Opcode and funct field detection.");
+    return -1;
+  }
+  switch(oper) {
+
+    //add
+    case 0010:
+        result = input1 + input2;
+        PC+=4;
+        break;
+    //subtract
+    case 0110:
+        result = input1 - input2;
+        PC+=4;
+        break;
+    //AND
+    case 0000:
+        result = input1 & input2;
+        PC+=4;
+        break;
+    //OR
+    case 0001:
+        result = input1 | input2;
+        PC+=4;
+        break;
+    //set on less than
+    case 0111:
+        input1 < input2 ? output:output;
+        PC+=4;
+        break;
   }
   return 0;
 }
-
 int32_t signExt(int32_t offsetField) {
   uint8_t sign = (offsetField >> 15) & 0x1;
   uint32_t mask = sign?0xffff0000:0x00000000;
@@ -69,40 +93,18 @@ int dataMemoryUnit(int32_t addr, int32_t writeData){
 }
 
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl){
-  return ctrl?one:zero;
-}
-
-void FetchStage(){
-  setCurIns();
-}
-void DecodeStage(){
-  setControls(curIns.opcode);
-  //Read 2 registers to pass to ALU or read one register and use signExt unit for immediate value
-  int arg1, arg2;
-  arg1 = regs[curIns.rs];
-  arg2 = controlUnit.ALUsrc ? signExt(curIns.imm) : regs[curIns.rt];
-  ALU(arg1, arg2);
-}
-void ExecuteStage(){
-
-}
-void MemoryStage(){
-
-}
-void WritebackStage(){
-
+  return ctrl?one:zero; //if ctrl = 1 choose one and if ctril = 0 then choose zero
 }
 
 int textFileConversion(FILE *fp, int * instructionMemory) {
     int i,j,num;
     char temp;
-    int numex = 1;
-    //long binary;
     char binstring[32];
     int bin,bin2,bin3;
     char input[255]; //to store each char into an array (to make it a string)
     char * hexarray[8]; //array of strings
     int index = 0;
+    int c;
     int status1,number;
     fp = fopen("Simulation_example.txt","r");
     if (fp == NULL) {
@@ -121,16 +123,15 @@ int textFileConversion(FILE *fp, int * instructionMemory) {
             memory[index] = number;
             index++; //counts how many instructions are in text file.
         }
-        while (status1);
+        while (status1 || (c = getc(fp)) != ',' && c != EOF);
     }
     fclose(fp);
 
     //print integer array
     for(i=0; i<index-1; i++) {
         instructionMemory[i] = memory[i]; //move this array into global memory
-        printf("memory in dec: %d\n",instructionMemory[i]);
+        printf("element %d in dec: %d\n",i,instructionMemory[i]);
     }
-
 
     //convert integers to binary numbers
     /*for (j=0; j<index-1; j++) {

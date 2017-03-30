@@ -1,5 +1,7 @@
 #ifndef REGISTERS
 #define REGISTERS
+#include <stdint.h>
+
 
 #define ZERO 0
 #define AT 1
