@@ -12,20 +12,25 @@ void init(){
 }
 
 
-int32_t ALU(uint8_t input1, uint8_t input2, int err, uint8_t result) {
+int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result) {
   //return x ALUop y
   uint8_t oper = 0x0;
-  uint8_t err = 0;
+  err = 0;
   switch(controlUnit.ALUop){
     case 0b00: //this means that it's a load/store instruction
       oper = 0x2; //(0010) - add
+      printf("case 1\n");
       break;
     case 0b01: //this means that it's a branch statement
       oper = 0x6; // (0110) - subtract
+      printf("case 2\n");
       break;
     case 0b10: //this means that it's an R-type instruction
+        printf("case 3\n");
+        printf("%d\n",curIns.opcode);
       //analyze funct field
       switch(curIns.opcode) {
+          printf("%d\n",curIns.opcode);
         case 0b100000:
             oper = 0x2; //(0010) - add
             break;
@@ -40,8 +45,8 @@ int32_t ALU(uint8_t input1, uint8_t input2, int err, uint8_t result) {
             break;
         case 0b101010: //set on less than
             oper = 0x111; //(0111) - set on less than
-            break:
-        default: err = 0b1;
+            break;
+        default: err = 1;
       }
       break;
     case 0b11:
@@ -49,7 +54,7 @@ int32_t ALU(uint8_t input1, uint8_t input2, int err, uint8_t result) {
         break;
   }
   if (err = 1) {
-    printf("Error with ALU control unit. Please check Opcode and funct field detection.");
+    printf("Error with ALU control unit. Please check Opcode and funct field detection.\n");
     return -1;
   }
   switch(oper) {
@@ -76,11 +81,12 @@ int32_t ALU(uint8_t input1, uint8_t input2, int err, uint8_t result) {
         break;
     //set on less than
     case 0111:
-        input1 < input2 ? output:output;
+        input1 < input2 ? result:result;
         PC+=4;
         break;
   }
-  return 0;
+
+  return result;
 }
 int32_t signExt(int32_t offsetField) {
   uint8_t sign = (offsetField >> 15) & 0x1;
@@ -130,7 +136,7 @@ int textFileConversion(FILE *fp, int * instructionMemory) {
     //print integer array
     for(i=0; i<index-1; i++) {
         instructionMemory[i] = memory[i]; //move this array into global memory
-        printf("element %d in dec: %d\n",i,instructionMemory[i]);
+        //printf("element %d in dec: %d\n",i,instructionMemory[i]);
     }
 
     //convert integers to binary numbers

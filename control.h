@@ -23,5 +23,6 @@ typedef struct ControlUnit {
 
 ControlUnit controlUnit;
 int setControls(uint8_t opcode);
+int setCurIns();
 
 #endif

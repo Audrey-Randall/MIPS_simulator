@@ -33,7 +33,7 @@ Instruction curIns;
 //Functions
 void init();                //Initializes everything
 int setCurIns();
-int32_t ALU(int x, int y);
+int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result);
 int32_t signExt(int32_t offsetField);
 int dataMemoryUnit(int32_t addr, int32_t writeData);
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl);

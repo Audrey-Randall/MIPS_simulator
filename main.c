@@ -19,6 +19,8 @@ int main(int argc, char** argv) {
         fileFlag = textFileConversion(infile,memory);
    }
 
+   PC = 0;
+
   //Read instructions from file into memory array
   /*if(parse("Simulation_example.txt")) {
     printf("Cannot read machine code\n");
@@ -33,6 +35,7 @@ int main(int argc, char** argv) {
   #endif
 
   while(PC < 5) {
+    printf("memory[%d]: %d\n",PC, memory[PC]);
     FetchStage();
     DecodeStage();
     ExecuteStage();
@@ -41,6 +44,6 @@ int main(int argc, char** argv) {
 
     //Cleanup
     PC++;  //if it wasn't messed with elsewhere
-    memset(&curIns, 0, sizeof(curIns));
+    //memset(&curIns, 0, sizeof(curIns));
   }
 }
