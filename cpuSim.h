@@ -23,10 +23,12 @@ typedef struct Instruction{
   int8_t shamt:5;
   uint8_t funct:6;
   int16_t imm;
+  int32_t signextimm;
   uint32_t addr:26;
 }Instruction;
 
 uint32_t memory[MEMSIZE];    //Program memory
+uint32_t index; //global to keep track of actual size of file
 Instruction curIns;
 
 
@@ -34,18 +36,9 @@ Instruction curIns;
 void init();                //Initializes everything
 int setCurIns();
 int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result);
-int32_t signExt(int32_t offsetField);
+int32_t signExt(int16_t offsetField);
 int dataMemoryUnit(int32_t addr, int32_t writeData);
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl);
-
-void FetchStage();
-void DecodeStage();
-void ExecuteStage();
-void MemoryStage();
-void WritebackStage();
-
-int textFileConversion(FILE *fp, int * instructionMemory);
-
 
 
 #endif

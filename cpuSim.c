@@ -9,54 +9,156 @@ void init(){
   memset(&MEMWB, 0, sizeof(MEMWB));
   memset(&curIns, 0, sizeof(curIns));
   PC = 0;
+
+  curIns.opcode = 0;
+  curIns.rs = 0;
+  curIns.rt = 0;
+  curIns.rd = 0;
+  curIns.shamt = 0;
+  curIns.funct = 0;
+  curIns.imm = 0;
+  curIns.signextimm = 0;
+  curIns.addr = 0;
 }
 
 
 int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result) {
+
+    //for R-type: input1 = rs, input2 = rt, result = rd
+    //for I-type: input1 = rs, input2 = imm, result = rt
   //return x ALUop y
   uint8_t oper = 0x0;
-  err = 0;
+        printf("controlUnit.ALUop: %d\n",controlUnit.ALUop);
   switch(controlUnit.ALUop){
-    case 0b00: //this means that it's a load/store instruction
+
+    case 0b00: //this means that it's a load/store instruction (I-type)
       oper = 0x2; //(0010) - add
-      printf("case 1\n");
       break;
-    case 0b01: //this means that it's a branch statement
-      oper = 0x6; // (0110) - subtract
-      printf("case 2\n");
+    case 0b01: //this means that it's a branch statement (I-type)
+      oper = 0x6; // (0110) - subtract (check this. why would we subtract on a branch statement?)
       break;
     case 0b10: //this means that it's an R-type instruction
-        printf("case 3\n");
-        printf("%d\n",curIns.opcode);
+        printf("curIns.funct: %d\n",curIns.funct);
       //analyze funct field
-      switch(curIns.opcode) {
-          printf("%d\n",curIns.opcode);
-        case 0b100000:
+      switch(curIns.funct) {
+        case 0b100000: //add (0x20)
             oper = 0x2; //(0010) - add
             break;
-        case 0b100010:
+        case 0b100010: //subtract (0x22)
             oper = 0x6; //(0110) - subtract
             break;
-        case 0b100100: //bit-wise AND
+        case 0b100100: //bit-wise AND (and with 0 opcode) (0x24)
             oper = 0x0; //(0000) - bitwise AND
             break;
-        case 0b100101: //bit-wise OR
+        case 0b100101: //bit-wise OR (or with 0 opcode) (0x25)
             oper = 0x1; //(0001) - bitwise OR
             break;
-        case 0b101010: //set on less than
+        case 0b101010: //set on less than - slt (0x2a)
             oper = 0x111; //(0111) - set on less than
             break;
-        default: err = 1;
+
+        //additional cases not covered in textbook:
+        case 0x21: //addu
+            oper = 0x2;
+                        printf("not done yet");
+            break;
+
+
+        case 0x08: //jr (this is an R-type instruction)
+            PC = input1; //pc = rs
+                        printf("not done yet");
+            break;
+
+
+        case 0x07: //nor //this is technically R-type, however in this case the controlUnit.ALUop will be different...do we need this?
+            input1 = ~input1;
+            input2 = ~input2;
+            oper = 0x0; //(AND) - using demorgans, ~(arg1 + arg2) = ~arg1 * ~arg2
+                        printf("not done yet");
+            break;
+
+        case 0x2b: //sltu
+            if (input1 < input2) { //if rs < rt
+                input1 = 1;
+                input2 = 0;
+                //store rd = 1+0 = 1 in rd
+            }
+            else {
+                input1 = 0;
+                input2 = 0;
+                //store rd = 0 + 0 = 0 in rd
+            }
+            oper = 0x2;
+                                    printf("not done yet");
+            break;
+
+/*
+        case 0x00: //sll -> is this allowed?
+            //sll is the same thing as taking rt, and multiplying it by shamt. i.e. 4 << 2 = 0b100 << 2 = 0b10000 = 16, = 4 * 2^shamt
+            //since we don't have an ALU functionality to multiply things, we have to add 4 + 4 + 4 + 4 aka do 4*4 that way.
+
+            printf("not done yet");
+            break; */
+
+        case 0x02: //srl
+            printf("not done yet");
+            break;
+
+        case 0x23: //subu
+            oper = 0x6;
+            printf("not done yet");
+            break;
+
+
+        default:
+            printf("none of the above.\n");
+            err = 1;
       }
       break;
-    case 0b11:
+
+   default:
+       //assuming that I-format instructions are based off of opcode and not ALUop
+       //as implied on:https://www.d.umn.edu/~gshute/mips/single-cycle-summary.pdf
+       //otherwise, I'm not totally sure what the ALUsrc signals should be for I-type instructions in general.
+       //might be in the appendix??
+
+       switch(curIns.opcode) {
+        case 0x8: //addi
+            break;
+        case 0x9: //addiu
+            break;
+        case 0xc: //andi
+            break;
+        case 0x4: //beq
+            break;
+        case 0x5: //bne
+            break;
+        case 0x24: //lbu
+            break;
+        case 0x25: //lhu
+            break;
+        case 0x30: //ll
+            break;
+        case 0xf: //lui
+            break;
+        //lw
+        case 0xd: //ori
+            break;
+
+        ////////etc//////////
+
+       }
+
+
         err = 1;
-        break;
+        printf("J-type?\n");
+        return;
   }
-  if (err = 1) {
+  if (err == 1) {
     printf("Error with ALU control unit. Please check Opcode and funct field detection.\n");
     return -1;
   }
+
   switch(oper) {
 
     //add
@@ -88,112 +190,25 @@ int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result) {
 
   return result;
 }
-int32_t signExt(int32_t offsetField) {
-  uint8_t sign = (offsetField >> 15) & 0x1;
-  uint32_t mask = sign?0xffff0000:0x00000000;
-  return (int32_t)(offsetField|mask);
+int32_t signExt(int16_t offsetField) {
+    uint32_t ans;
+    uint8_t sign = (offsetField >> 15) & 0x1;
+    uint32_t mask = sign?0xffff0000:0x00000000;
+    ans = (int32_t)(offsetField|mask);
+    return ans;
+
+    /*could we not use:
+    int32_t ans = offsetField;
+    return ans;
+    ???? */
+
 }
 
 int dataMemoryUnit(int32_t addr, int32_t writeData){
   return 0;
 }
 
-int32_t mux(int32_t zero, int32_t one, uint8_t ctrl){
+int32_t mux(int32_t zero, int32_t one, uint8_t ctrl){ //zero is rt, one is imm
   return ctrl?one:zero; //if ctrl = 1 choose one and if ctril = 0 then choose zero
 }
 
-int textFileConversion(FILE *fp, int * instructionMemory) {
-    int i,j,num;
-    char temp;
-    char binstring[32];
-    int bin,bin2,bin3;
-    char input[255]; //to store each char into an array (to make it a string)
-    char * hexarray[8]; //array of strings
-    int index = 0;
-    int c;
-    int status1,number;
-    fp = fopen("Simulation_example.txt","r");
-    if (fp == NULL) {
-        printf("cannot open file.\n");
-        return -1;
-    }
-
-    //store each character into a string, print each line
-    else {
-        do
-        {
-            status1 = fgets(input, sizeof(input), fp);
-            number = (int)strtol(input, NULL, 0); //converts hex string number to int
-            hexarray[index] = input;
-            //printf("%s\n",hexarray[index]); //to store hex addresses before converting them
-            memory[index] = number;
-            index++; //counts how many instructions are in text file.
-        }
-        while (status1 || (c = getc(fp)) != ',' && c != EOF);
-    }
-    fclose(fp);
-
-    //print integer array
-    for(i=0; i<index-1; i++) {
-        instructionMemory[i] = memory[i]; //move this array into global memory
-        //printf("element %d in dec: %d\n",i,instructionMemory[i]);
-    }
-
-    //convert integers to binary numbers
-    /*for (j=0; j<index-1; j++) {
-
-        printf("Binary versions from memory\n");
-        //actual versions needed:
-        bin = convert(instructionMemory[j]);
-        bin2 = int_to_int(instructionMemory[j]);
-        bin3 = decimalToBinary(instructionMemory[j]);
-        printf("num1: %d, num2: %d, num3: %d\n",bin,bin2,bin3);
-
-        //trial just to test
-        printf("binary version of small decimal numbers:\n");
-        bin = convert(11);
-        bin2 = int_to_int(11);
-        bin3 = decimalToBinary(11);
-        printf("num1: %d, num2: %d, num3: %d\n",bin,bin2,bin3);
-
-        //function output
-        instructionMemory[j] = bin2; //or bin or bin3
-    }*/
-
-    return 0;
-}
-
-/*int int_to_int(unsigned int k) {
-    char buffer[128]; // any number higher than sizeof(unsigned int)*bits_per_byte(8)
-    return atoi( itoa(k, buffer, 2) );
-}
-
-void getBin(int num, char *str)
-{
-  *(str+32) = '\0'; //make sure that the string ends in a null char
-  int mask = 0x100 << 1; //created a mask shifted to the left once to account for first shift
-  while(mask >>= 1) {
-    *str++ = !!(mask & num) + '0';
-  }
-}
-
-int convert(int dec) {
-    if (dec == 0) {
-        return;
-    }
-    else return (dec % 2 + 10*convert(dec / 2));
-}
-
-int decimalToBinary(int n) {
-    int remainder;
-    int binary = 0, i = 1;
-
-    while(n != 0) {
-        remainder = n%2;
-        n = n/2;
-        binary= binary + (remainder*i);
-        i = i*10;
-        //printf("%d", binary);
-    }
-    return binary;
-}*/

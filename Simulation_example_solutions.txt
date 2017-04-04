@@ -1,11 +1,10 @@
-0x2116022 //sub $t4, $s0, $s1 - Opcode = 0, rd = 12, rs = 16, rt = 17, shamt = 0, funct = 34
-0x8C0C0 //sll $t8, $t0, 3 - Opcode = 0, rd = 0, rs = 8, rt = 24, shamt = 3, funct = 0
-0x0015F7F0 //sw $ra, 16($sp), Opcode = 0, rd = 0, rs = 21, rt = 30, shamt = 31, funct = 48
-0x2088009c //addi $t0, $a0, -100, Opcode = 8, rs = 4, rt = 8, immediate 156
-
-0x026c4020 //add $t0, $s3, $t4_
-0x3482a5a5 //ori $v0, $a0, -23131__
-0x2a282710 //_slti $t0, $s1, 10000___
+0x2116022, //sub $t4, $s0, $s1 - Opcode = 0, rd = 12, rs = 16, rt = 17, shamt = 0, funct = 34 //R-format
+0x8C0C0, //sll $t8, $t0, 3 - Opcode = 0, rd = 24, rs = 0, rt = 8, shamt = 3, funct = 0 //R-format
+0xafbf0010,2948530192 //sw $ra, 16($sp), Opcode = 43, rs = 29, rt = 31, imm = 16 //I-format (shamt = 0, funct = 0, rd = 0)
+0x2088009c, //addi $t0, $a0, -100, Opcode = 8, rs = 4, rt = 8, immediate 65436 //I-format
+0x026c4020, //add $t0, $s3, $t4 Opcode = 0, rd = 8, rs = 19, rt = 12, shamt = 0, funct = 32 //R-format
+0x3482a5a5, //ori $v0, $a0, -23131_ Opcode = 13, rs = 4, rt = 2, imm = -23131
+0x2a282710, //_slti $t0, $s1, 10000___ Opcode = 10, rs = 17, rt = 8, imm = 10000
 
 
 0x0008C0C0
