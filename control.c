@@ -123,9 +123,9 @@ int textFileConversion(FILE *fp) {
         do
         {
             status1 = fgets(input, sizeof(input), fp); //status returns the array of chars where the string read is stored. it returns NULL if error occurs
-            //printf("STATUS1: %d",status1);
+            printf("STATUS1: %d",status1);
             number = strtol(input, NULL, 0); //converts hex string number to int
-            //printf(" NUMBER: %ld",number);
+            printf(" NUMBER: %ld",number);
             hexarray[index] = input;
             memory[index] = number;
             //printf(" MEMORY INDEX: %ld\n",memory[index]);

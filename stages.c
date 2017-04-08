@@ -3,6 +3,8 @@
 #include "control.h"
 
 void FetchStage(){
+  init();
+  //change this
   setCurIns();
 }
 
