@@ -28,7 +28,6 @@ typedef struct Instruction{
 }Instruction;
 
 uint32_t memory[MEMSIZE];    //Program memory
-uint32_t index; //global to keep track of actual size of file
 Instruction curIns;
 
 

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "cpuSim.h"
-//#include "control.h"
+#include "control.h"
 
 #define fileread
 //#define manualmemory
@@ -21,10 +21,9 @@ int main(int argc, char** argv) {
    //NOTE: eventually make text file as input to main (argv,argc) so prof can run with his instruction set
    while(fileFlag) {
         fileFlag = textFileConversion(infile);
-        init();
 
         //granted that file opened okay, we continue to our stages.
-        while(PC < index) {
+        while(PC < idx) {
             printf("memory[%d]: %d-------------------------------------------------\n",PC, memory[PC]);
             FetchStage();
             DecodeStage();

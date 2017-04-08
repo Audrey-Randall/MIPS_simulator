@@ -21,6 +21,53 @@ void init(){
   curIns.addr = 0;
 }
 
+//read memory based on PC, based off of opcode divide bits into different parts
+int setCurIns(){
+  uint32_t ci = memory[PC];  //current instruction
+  uint8_t opcode = (ci & 0xfc000000)>>26; //most significant 6 bits
+  curIns.opcode = opcode;
+  printf("OPODE:");
+  if(opcode==0x0){
+    //printf("R instruction\n");
+    curIns.rs = (ci & 0x03E00000)>>21;
+    curIns.rt = (ci & 0x001F0000)>>16;
+    curIns.rd = (ci & 0x0000F800)>>11;
+    curIns.shamt = (ci & 0x000007C0)>>6;
+    curIns.funct = (ci & 0x0000003F);
+    curIns.imm = 0; //rtypes don't have imm
+    InstructionType = Rtype;
+  } else if (opcode==0x2 || opcode==0x3){
+    //printf("J instruc\n");
+
+    curIns.addr = (ci & 0x03FFFFFF);
+    InstructionType = Jtype;
+  } else {
+    //printf("I instruc\n");
+    curIns.rs = (ci & 0x03E00000)>>21;
+    curIns.rt = (ci & 0x001F0000)>>16;
+    curIns.imm = (ci & 0x0000ffff);
+    curIns.rd = 0; //itypes don't have rd
+    curIns.shamt = 0; //itypes don't have shamt
+    curIns.funct = 0; //itypes don't have funct
+    InstructionType = Itype;
+  }
+  #if DEBUG==1
+  printf("\n***setCurIns***\n");
+  if(opcode==0x0) printf("R function\nRS: %d\nRT: %d\nRD: %d\nShamt: %d\nFunct: %d\n", curIns.rs, curIns.rt, curIns.rd, curIns.shamt, curIns.funct);
+  else if(opcode==0x2||opcode==0x3) printf("J instruction\nAddress w/o shift: %04X", curIns.addr);
+  else printf("I instruction\nOpcode: %d\nRS: %d\nRT: %d\nImm: %d\n", opcode, curIns.rs, curIns.rt, curIns.imm);
+  #endif
+
+  printf("opcode: %d\n",curIns.opcode);
+  printf("rs: %d\n",curIns.rs);
+  printf("rt: %d\n",curIns.rt);
+  printf("rd: %d\n",curIns.rd);
+  printf("shamt: %d\n",curIns.shamt);
+  printf("funct: %d\n",curIns.funct);
+  printf("imm: %d\n",curIns.imm);
+  printf("addr: %d\n",curIns.addr);
+  return 0;
+}
 
 int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result) {
 
@@ -54,13 +101,13 @@ int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result) {
             oper = 0x1; //(0001) - bitwise OR
             break;
         case 0b101010: //set on less than - slt (0x2a)
-            oper = 0x111; //(0111) - set on less than
+            oper = 0b111; //(0111) - set on less than
             break;
 
         //additional cases not covered in textbook:
         case 0x21: //addu
             oper = 0x2;
-                        printf("not done yet");
+            printf("not done yet");
             break;
 
 
@@ -211,4 +258,3 @@ int dataMemoryUnit(int32_t addr, int32_t writeData){
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl){ //zero is rt, one is imm
   return ctrl?one:zero; //if ctrl = 1 choose one and if ctril = 0 then choose zero
 }
-
