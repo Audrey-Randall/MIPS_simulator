@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 #include <string.h>
-#include <cpuSim.h>
+#include <stdlib.h>
+#include "cpuSim.h"
 
 #define OPCODE_R 0b000000 //0x00
 #define OPCODE_LW 0b100011 //0x23
@@ -27,8 +28,8 @@ typedef struct ControlUnit {
 }ControlUnit;
 
 ControlUnit controlUnit;
+uint32_t idx; //global to keep track of actual size of file
 int setControls(uint8_t opcode);
-int setCurIns();
 int textFileConversion(FILE *fp);
 
 #endif

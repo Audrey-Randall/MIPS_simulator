@@ -1,6 +1,5 @@
 0x2116022,34693154 //sub $t4, $s0, $s1 - Opcode = 0, rd = 12, rs = 16, rt = 17, shamt = 0, funct = 34 //R-format
 0x8C0C0,573632 //sll $t8, $t0, 3 - Opcode = 0, rd = 24, rs = 0, rt = 8, shamt = 3, funct = 0 //R-format
-,0x80000000
 0x2088ff9c,545783964 //addi $t0, $a0, -100, Opcode = 8, rs = 4, rt = 8, immediate -100 //I-format (shamt = 0, funct = 0, rd=0)
 0x026c4020,40648736 //add $t0, $s3, $t4 Opcode = 0, rd = 8, rs = 19, rt = 12, shamt = 0, funct = 32 //R-format
 0x3482a5a5,880977317 //ori $v0, $a0, -23131_ Opcode = 13, rs = 4, rt = 2, imm = -23131

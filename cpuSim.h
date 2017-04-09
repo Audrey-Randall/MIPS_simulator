@@ -8,6 +8,7 @@ We don't want a separate variable for the pc, do we?
 #define CPUSIM
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include "registers.h"
@@ -28,12 +29,12 @@ typedef struct Instruction{
 }Instruction;
 
 uint32_t memory[MEMSIZE];    //Program memory
-uint32_t index; //global to keep track of actual size of file
 Instruction curIns;
 
 
 //Functions
 void init();                //Initializes everything
+int parseInput();           //Reads input file and fills memory array with it
 int setCurIns();
 int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result);
 int32_t signExt(int16_t offsetField);

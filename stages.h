@@ -1,5 +1,5 @@
-#ifndef STAGES_H_INCLUDED
-#define STAGES_H_INCLUDED
+#ifndef STAGES_H
+#define STAGES_H
 
 void FetchStage();
 void DecodeStage();
@@ -8,4 +8,4 @@ void MemoryStage();
 void WritebackStage();
 
 
-#endif // STAGES_H_INCLUDED
+#endif 

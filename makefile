@@ -22,7 +22,7 @@ all: executable
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(local_CFLAGS)
 
-executable: main.o cpuSim.o control.o
+executable: main.o cpuSim.o control.o stages.o
 	$(CC) -o cpuSim $^
 
 clean:
