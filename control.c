@@ -62,7 +62,6 @@ int textFileConversion(FILE *fp) {
     char input[1000]; //to store each char into an array (to make it a string)
     char * hexarray[8]; //array of strings
     int c;
-    int status1;
     uint32_t number;
     fp = fopen("Simulation_example.txt","r");
     if (fp == NULL) {
@@ -74,8 +73,11 @@ int textFileConversion(FILE *fp) {
     else {
         do
         {
-            status1 = fgets(input, sizeof(input), fp); //status returns the array of chars where the string read is stored. it returns NULL if error occurs
-            //printf("STATUS1: %d",status1);
+            if(fgets(input, sizeof(input), fp) == NULL) {
+                perror("ERROR: fgets in textFileConversion()");
+                exit(1);
+            }
+
             number = strtol(input, NULL, 0); //converts hex string number to int
             //printf(" NUMBER: %ld",number);
             hexarray[idx] = input;
@@ -83,7 +85,7 @@ int textFileConversion(FILE *fp) {
             //printf(" MEMORY INDEX: %ld\n",memory[idx]);
             idx++; //counts how many instructions are in text file.
         }
-        while (status1 || (c = getc(fp)) != ',' && c != EOF);
+        while ((c = getc(fp)) != ',' && c != EOF);
     }
     fclose(fp);
 

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "cpuSim.h"
 #include "control.h"
+#include "stages.h"
 
 #define fileread
 //#define manualmemory

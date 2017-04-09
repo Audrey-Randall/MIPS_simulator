@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include "cpuSim.h"
 
 #define OPCODE_R 0b000000 //0x00

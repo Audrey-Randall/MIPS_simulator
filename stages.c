@@ -31,4 +31,3 @@ void MemoryStage(){
 void WritebackStage(){
 
 }
-
