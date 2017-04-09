@@ -21,6 +21,37 @@ void init(){
   curIns.addr = 0;
 }
 
+int parseInput(char* inFile){
+  FILE* fp = fopen(inFile, "r");
+  int line = 0;
+  if(!fp) {
+    perror("ERROR: cannot open input file");
+    exit(1);
+  }
+  char buf[512];
+  memset(buf, 0, sizeof(buf));
+
+  //Read in line by line, buf will contain each line including the newline character
+  while(fgets(buf, sizeof(buf), fp)) {
+    char instr[12];
+    char trash[500];
+    if(sscanf(buf, "%s %s", instr, trash) < 2) {
+      //printf("Line %d in input file became %s and %s\n", line, instr, trash);
+    } else {
+      instr[10] = 0;
+      memory[line] = (uint32_t)strtoul(instr, NULL, 16);
+    }
+    line++;
+    memset(instr, 0, sizeof(instr));
+  }
+  fclose(fp);
+  int i = 0;
+  while(i < 20){
+    printf("memory[%d] = 0x%08X\n", i, memory[i]);
+    i++;
+  }
+}
+
 //read memory based on PC, based off of opcode divide bits into different parts
 int setCurIns(){
   uint32_t ci = memory[PC];  //current instruction
@@ -247,7 +278,8 @@ int32_t signExt(int16_t offsetField) {
     /*could we not use:
     int32_t ans = offsetField;
     return ans;
-    ???? */
+    ???
+    No- the sign of negative numbers won't be extended. C's casting doesn't do that for you. */
 
 }
 

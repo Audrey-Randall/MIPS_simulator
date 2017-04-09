@@ -13,7 +13,7 @@ branch detection (Branch detection should be in the ID, Decode, stage of the pip
 Update 4/5/17
 Bugs/confusions:
 
-1) instructions get truncated larger than 0x80000000
+1) instructions get truncated larger than 0x80000000 FIXED - use strtoul not strtol
 2) How to deal with sll/slr. What different ALU functions are there besides add, sub, AND, OR, slti
 3) what are the ALUop codes for I-format instructions. what state triggers you to look at the funct field
 4) figure out the instruction we need to do (Appendix A - last few pages). currently, we are implementing green sheet instructions
