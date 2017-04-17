@@ -8,17 +8,8 @@ void init(){
   memset(&EXMEM, 0, sizeof(EXMEM));
   memset(&MEMWB, 0, sizeof(MEMWB));
   memset(&curIns, 0, sizeof(curIns));
+  memset(memory, 0, MEMSIZE);
   PC = 0;
-
-  curIns.opcode = 0;
-  curIns.rs = 0;
-  curIns.rt = 0;
-  curIns.rd = 0;
-  curIns.shamt = 0;
-  curIns.funct = 0;
-  curIns.imm = 0;
-  curIns.signextimm = 0;
-  curIns.addr = 0;
 }
 
 int parseInput(char* inFile){
@@ -45,11 +36,7 @@ int parseInput(char* inFile){
     memset(instr, 0, sizeof(instr));
   }
   fclose(fp);
-  int i = 0;
-  while(i < 20){
-    printf("memory[%d] = 0x%08X\n", i, memory[i]);
-    i++;
-  }
+  return line;
 }
 
 //read memory based on PC, based off of opcode divide bits into different parts
@@ -57,7 +44,7 @@ int setCurIns(){
   uint32_t ci = memory[PC];  //current instruction
   uint8_t opcode = (ci & 0xfc000000)>>26; //most significant 6 bits
   curIns.opcode = opcode;
-  printf("OPODE:");
+  printf("OPCODE:");
   if(opcode==0x0){
     //printf("R instruction\n");
     curIns.rs = (ci & 0x03E00000)>>21;
@@ -82,111 +69,93 @@ int setCurIns(){
     curIns.funct = 0; //itypes don't have funct
     InstructionType = Itype;
   }
-  #if DEBUG==1
+  #ifdef DEBUG
   printf("\n***setCurIns***\n");
   if(opcode==0x0) printf("R function\nRS: %d\nRT: %d\nRD: %d\nShamt: %d\nFunct: %d\n", curIns.rs, curIns.rt, curIns.rd, curIns.shamt, curIns.funct);
   else if(opcode==0x2||opcode==0x3) printf("J instruction\nAddress w/o shift: %04X", curIns.addr);
   else printf("I instruction\nOpcode: %d\nRS: %d\nRT: %d\nImm: %d\n", opcode, curIns.rs, curIns.rt, curIns.imm);
   #endif
 
-  printf("opcode: %d\n",curIns.opcode);
-  printf("rs: %d\n",curIns.rs);
-  printf("rt: %d\n",curIns.rt);
-  printf("rd: %d\n",curIns.rd);
-  printf("shamt: %d\n",curIns.shamt);
-  printf("funct: %d\n",curIns.funct);
-  printf("imm: %d\n",curIns.imm);
-  printf("addr: %d\n",curIns.addr);
   return 0;
 }
 
-int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result) {
-
-    //for R-type: input1 = rs, input2 = rt, result = rd
-    //for I-type: input1 = rs, input2 = imm, result = rt
-  //return x ALUop y
+/*
+*  i1 and i2 are register numbers, not values in registers.
+*  jump and branch info: http://stackoverflow.com/questions/6950230/how-to-calculate-jump-target-address-and-branch-target-address
+*/
+int32_t ALU(uint8_t i1, uint8_t i2, int32_t imm, uint8_t err, uint8_t resReg) {
+  //for R-type: i1 = rs, i2 = rt, resReg = rd
+  //for I-type: i1 = rs, i2 = imm, resReg = rt
+  int32_t res = 0;
   uint8_t oper = 0x0;
-        printf("controlUnit.ALUop: %d\n",controlUnit.ALUop);
-  switch(controlUnit.ALUop){
+  printf("controlUnit.ALUop: %d\n",controlUnit.ALUop);
 
+  switch(controlUnit.ALUop){
     case 0b00: //this means that it's a load/store instruction (I-type)
       oper = 0x2; //(0010) - add
+      res = regs[i1] + imm;
       break;
     case 0b01: //this means that it's a branch statement (I-type)
-      oper = 0x6; // (0110) - subtract (check this. why would we subtract on a branch statement?)
+      oper = 0x6; // (0110) - subtract
+      res = PC + 4 + (imm<<2);
       break;
     case 0b10: //this means that it's an R-type instruction
-        printf("curIns.funct: %d\n",curIns.funct);
+      printf("curIns.funct: %d\n",curIns.funct);
+      int32_t v1 = regs[i1];
+      int32_t v2 = regs[i2];
       //analyze funct field
       switch(curIns.funct) {
         case 0b100000: //add (0x20)
             oper = 0x2; //(0010) - add
+            res = v1 + v2;
             break;
         case 0b100010: //subtract (0x22)
             oper = 0x6; //(0110) - subtract
+            res = v1 - v2;
             break;
         case 0b100100: //bit-wise AND (and with 0 opcode) (0x24)
             oper = 0x0; //(0000) - bitwise AND
+            res = v1 & v2;
             break;
         case 0b100101: //bit-wise OR (or with 0 opcode) (0x25)
             oper = 0x1; //(0001) - bitwise OR
+            res = v1 | v2;
             break;
         case 0b101010: //set on less than - slt (0x2a)
             oper = 0b111; //(0111) - set on less than
+            res = v1 < v2 ? 1 : 0;
             break;
 
         //additional cases not covered in textbook:
         case 0x21: //addu
             oper = 0x2;
-            printf("not done yet");
+            //TODO: will this be stored in res correctly?
+            res = (uint32_t)((uint32_t)v1 + (uint32_t)v2);
             break;
-
-
         case 0x08: //jr (this is an R-type instruction)
-            PC = input1; //pc = rs
-                        printf("not done yet");
+            PC = v1;
             break;
-
-
-        case 0x07: //nor //this is technically R-type, however in this case the controlUnit.ALUop will be different...do we need this?
-            input1 = ~input1;
-            input2 = ~input2;
+        //Shift right arithmetic by variable bits: srav. TODO: figure out which it is.
+        case 0x07: //nor. This is technically R-type, however in this case the controlUnit.ALUop will be different...do we need this?
+            printf("INFO: Not implemented\n");
+            v1 = ~v1;
+            v2 = ~v2;
             oper = 0x0; //(AND) - using demorgans, ~(arg1 + arg2) = ~arg1 * ~arg2
-                        printf("not done yet");
             break;
-
         case 0x2b: //sltu
-            if (input1 < input2) { //if rs < rt
-                input1 = 1;
-                input2 = 0;
-                //store rd = 1+0 = 1 in rd
-            }
-            else {
-                input1 = 0;
-                input2 = 0;
-                //store rd = 0 + 0 = 0 in rd
-            }
+            res = v1 < v2 ? 1 : 0;
             oper = 0x2;
-                                    printf("not done yet");
             break;
-
-/*
         case 0x00: //sll -> is this allowed?
-            //sll is the same thing as taking rt, and multiplying it by shamt. i.e. 4 << 2 = 0b100 << 2 = 0b10000 = 16, = 4 * 2^shamt
-            //since we don't have an ALU functionality to multiply things, we have to add 4 + 4 + 4 + 4 aka do 4*4 that way.
-
-            printf("not done yet");
-            break; */
-
+            res = v1 << curIns.shamt;
+            break;
         case 0x02: //srl
-            printf("not done yet");
+            res = v1 >> curIns.shamt;
             break;
-
-        case 0x23: //subu
+        case 0x23: //subu TODO: am I casting correctly?
             oper = 0x6;
-            printf("not done yet");
+            res = (uint32_t)((uint32_t)v1 - (uint32_t)v2);
             break;
-
 
         default:
             printf("none of the above.\n");
@@ -236,36 +205,6 @@ int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result) {
     printf("Error with ALU control unit. Please check Opcode and funct field detection.\n");
     return -1;
   }
-
-  switch(oper) {
-
-    //add
-    case 0010:
-        result = input1 + input2;
-        PC+=4;
-        break;
-    //subtract
-    case 0110:
-        result = input1 - input2;
-        PC+=4;
-        break;
-    //AND
-    case 0000:
-        result = input1 & input2;
-        PC+=4;
-        break;
-    //OR
-    case 0001:
-        result = input1 | input2;
-        PC+=4;
-        break;
-    //set on less than
-    case 0111:
-        input1 < input2 ? result:result;
-        PC+=4;
-        break;
-  }
-
   return result;
 }
 int32_t signExt(int16_t offsetField) {

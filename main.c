@@ -8,6 +8,7 @@
 //#define manualmemory
 
 int main(int argc, char** argv) {
+  int progLen;
   //Check usage
   if(argc < 2) {
     printf("USAGE: ./cpuSim <program to read>\n");
@@ -16,11 +17,11 @@ int main(int argc, char** argv) {
   //Initialize globals
   init();
   //Read program file into memory
-  parseInput(argv[1]);
+  progLen = parseInput(argv[1]);
 
   //Execute program
-  while(PC < idx) {
-    printf("memory[%d]: %X-------------------------------------------------\n",PC, memory[PC]);
+  while(PC < progLen) {
+    printf("memory[%d]: 0x%08X-------------------------------------------------\n",PC, memory[PC]);
     FetchStage();
     DecodeStage();
     ExecuteStage();

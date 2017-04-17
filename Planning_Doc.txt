@@ -13,17 +13,23 @@ branch detection (Branch detection should be in the ID, Decode, stage of the pip
 Update 4/5/17
 Bugs/confusions:
 
-1) instructions get truncated larger than 0x80000000 FIXED - use strtoul not strtol
-2) How to deal with sll/slr. What different ALU functions are there besides add, sub, AND, OR, slti
-3) what are the ALUop codes for I-format instructions. what state triggers you to look at the funct field
-4) figure out the instruction we need to do (Appendix A - last few pages). currently, we are implementing green sheet instructions
-5) what does store word skip writeback stage, how do r-format instructions skip memory stage
-6) change init to a global init, and a per instruction init (to initialize program vs. reset stage structs)
-7) fix infinite loop of init in fetchstage();
+- What functions can the ALU perform? Are there more than the six specified in the book?
+- How do you set the ALUOP bits for i-format instructions like addi?
+- What's the default case, if you're switching on the opcode to set ALUop?
+- Figure out the instructions we need to support (Appendix A - last few pages). currently, we are implementing green sheet instructions
+- What does sw do to skip writeback stage, how do r-format instructions skip memory stage? Pass # of reg to write to from decode through to wb
+
+Fetch, wb, d, x, mem. Then clock pipeline registers (aka, copy the shadow registers into the real registers)
 
 Next on the list:
 5) pipelining (do after fixing the rest of the bugs)
+- Remember to do writeback before decode!
 9) after I-format instructions, start jump/branch (Vanika)
+- Make sure results from nop instruc (which is a shift) are handled properly, shouldn't continue to further stages
 
 Trivial but useful stuff electrical engineers may not go over:
 - Header files and c files should be vaguely tree-shaped, to prevent linker errors. Each "leaf" c file should only include its own h file, and main can include them all.
+
+
+Questions for Vanika:
+- In ALU(): what's err for? And what's opcode for?

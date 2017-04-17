@@ -11,12 +11,9 @@ DEPS= cpuSim.h control.h registers.h
 # $< is first item in DEPS
 # $@ is left side of colon, $^ is right side
 
-.PHONY: all clean debug
+.PHONY: all clean
 
-debug: local_CFLAGS += -DDEBUG
-debug: executable
-
-all: local_CFLAGS=$(filter-out -DDEBUG,$(CFLAGS))
+#all: local_CFLAGS=$(filter-out -DDEBUG,$(CFLAGS))
 all: executable
 
 %.o: %.c $(DEPS)
