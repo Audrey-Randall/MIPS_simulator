@@ -1,3 +1,9 @@
+#define OPCODE_R 0b000000 //0x00
+#define OPCODE_LW 0b100011 //0x23
+#define OPCODE_SW 0b101011 //0x2b
+#define OPCODE_BEQ 0b000100 //0x4
+
+
 
 #include "control.h"
 //#include "cpuSim.h"
@@ -49,7 +55,7 @@ int setControls(uint8_t opcode){
       controlUnit.ALUop = 0b01;
       printf("BEQ-format\n");
       break;
-    default:printf("none of the above.\n");
+    default:printf("Control lines not set.\n");
       return -1;
   }
   return 0;

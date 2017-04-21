@@ -37,19 +37,24 @@
 #define RA 31
 
 typedef struct Ifid{
-  uint8_t x;
+  Instruction ins;
+  uint32_t PC;
 }Ifid;
 
 typedef struct Idex {
-  uint8_t x;
+  Instruction ins;
+  uint32_t PC;
 }Idex;
 
 typedef struct Exmem {
-  uint8_t x;
+  int32_t res;
+  uint8_t zero;
+  int32_t write_data;
 }Exmem;
 
 typedef struct Memwb {
-  uint8_t x;
+  uint32_t addr;
+  int32_t read_data;
 }Memwb;
 
 uint32_t regs[32];      //Registers, if you want to modify T0 you can use regs[T0]

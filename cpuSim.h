@@ -36,7 +36,7 @@ Instruction curIns;
 void init();                //Initializes everything
 int parseInput();           //Reads input file and fills memory array with it
 int setCurIns();
-int32_t ALU(uint8_t input1, uint8_t input2, uint8_t err, uint8_t result);
+int32_t ALU(uint8_t i1, uint8_t i2, int32_t imm, uint8_t * err, uint8_t resReg);
 int32_t signExt(int16_t offsetField);
 int dataMemoryUnit(int32_t addr, int32_t writeData);
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl);
