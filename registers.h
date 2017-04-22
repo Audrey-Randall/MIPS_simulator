@@ -1,6 +1,7 @@
 #ifndef REGISTERS
 #define REGISTERS
 #include <stdint.h>
+#include "cpuSim.h"
 
 
 #define ZERO 0
@@ -36,25 +37,49 @@
 #define FP 30
 #define RA 31
 
+typedef struct Instruction{
+  uint8_t opcode:6;
+  uint8_t rs:5;
+  uint8_t rt:5;
+  uint8_t rd:5;
+  int8_t shamt:5;
+  uint8_t funct:6;
+  int16_t imm;
+  int32_t signextimm;
+  uint32_t addr:26;
+}Instruction;
+
 typedef struct Ifid{
   Instruction ins;
   uint32_t PC;
+  uint8_t nopFlag; //Don't do anything else for the rest of the instruc if this is set
 }Ifid;
 
 typedef struct Idex {
   Instruction ins;
   uint32_t PC;
+  uint8_t nopFlag;
+  int32_t write_data;
 }Idex;
 
 typedef struct Exmem {
-  int32_t res;
+  uint8_t resReg;
+  int32_t ALUres; //address for the mem stage to write to, if mem stage necessary. If not, it's result for reg.
   uint8_t zero;
-  int32_t write_data;
+  int32_t write_data; //Passed through from decode stage
+  uint32_t addr;
+  uint32_t PC;
+  uint8_t skipMem;
+  uint8_t nopFlag;
 }Exmem;
 
 typedef struct Memwb {
-  uint32_t addr;
-  int32_t read_data;
+  uint8_t resReg;
+  uint32_t ALUres;
+  int32_t read_data; //data that was just read in
+  uint32_t PC;
+  uint8_t skipWb;
+  uint8_t nopFlag;
 }Memwb;
 
 uint32_t regs[32];      //Registers, if you want to modify T0 you can use regs[T0]

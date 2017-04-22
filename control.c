@@ -55,7 +55,8 @@ int setControls(uint8_t opcode){
       controlUnit.ALUop = 0b01;
       printf("BEQ-format\n");
       break;
-    default:printf("Control lines not set.\n");
+    default:printf("WARNING: Control lines not set.\n");
+    //To-DO: figure out why instructions are not giving default output
       return -1;
   }
   return 0;

@@ -43,38 +43,37 @@ int parseInput(char* inFile){
 
 //read memory based on PC, based off of opcode divide bits into different parts
 int setCurIns(){
-  uint32_t ci = memory[PC];  //current instruction
+  uint32_t ci = memory[IFID.PC];  //current instruction
   uint8_t opcode = (ci & 0xfc000000)>>26; //most significant 6 bits
-  curIns.opcode = opcode;
+  ins.opcode = opcode;
   printf("OPCODE:");
   if(opcode==0x0){
     //printf("R instruction\n");
-    curIns.rs = (ci & 0x03E00000)>>21;
-    curIns.rt = (ci & 0x001F0000)>>16;
-    curIns.rd = (ci & 0x0000F800)>>11;
-    curIns.shamt = (ci & 0x000007C0)>>6;
-    curIns.funct = (ci & 0x0000003F);
-    curIns.imm = 0; //rtypes don't have imm
+    IFID.ins.rs = (ci & 0x03E00000)>>21;
+    IFID.ins.rt = (ci & 0x001F0000)>>16;
+    IFID.ins.rd = (ci & 0x0000F800)>>11;
+    IFID.ins.shamt = (ci & 0x000007C0)>>6;
+    IFID.ins.funct = (ci & 0x0000003F);
+    IFID.ins.imm = 0; //rtypes don't have imm
     InstructionType = Rtype;
   } else if (opcode==0x2 || opcode==0x3){
     //printf("J instruc\n");
-
-    curIns.addr = (ci & 0x03FFFFFF);
-    curIns.rs = 0;
-    curIns.rt = 0;
-    curIns.rd = 0;
-    curIns.shamt = 0;
-    curIns.funct = 0;
-    curIns.imm = 0; //rtypes don't have imm
+    IFID.ins.addr = (ci & 0x03FFFFFF);
+    IFID.ins.rs = 0;
+    IFID.ins.rt = 0;
+    IFID.ins.rd = 0;
+    IFID.ins.shamt = 0;
+    IFID.ins.funct = 0;
+    IFID.ins.imm = 0; //rtypes don't have imm
     InstructionType = Jtype;
   } else {
     //printf("I instruc\n");
-    curIns.rs = (ci & 0x03E00000)>>21;
-    curIns.rt = (ci & 0x001F0000)>>16;
-    curIns.imm = (ci & 0x0000ffff);
-    curIns.rd = 0; //itypes don't have rd
-    curIns.shamt = 0; //itypes don't have shamt
-    curIns.funct = 0; //itypes don't have funct
+    IFID.ins.rs = (ci & 0x03E00000)>>21;
+    IFID.ins.rt = (ci & 0x001F0000)>>16;
+    IFID.ins.imm = (ci & 0x0000ffff);
+    IFID.ins.rd = 0; //itypes don't have rd
+    IFID.ins.shamt = 0; //itypes don't have shamt
+    IFID.ins.funct = 0; //itypes don't have funct
     InstructionType = Itype;
   }
 
@@ -109,118 +108,98 @@ void BranchUnit (uint32_t zerosig, uint32_t signeximm) {
     PC = mux(input0, input1, s); //ALU unit input mux
 }
 
-int32_t ALU(uint8_t i1, uint8_t i2, int32_t imm, uint8_t * err_p, uint8_t resReg) {
-
-    //note that imm is not sign extended
-    uint8_t err = * err_p;
-
+int32_t ALU(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
   //for R-type: i1 = rs, i2 = rt, resReg = rd
   //for I-type: i1 = rs, i2 = imm, resReg = rt
-  //note: we don't actually need the imm in the function since curIns.imm is global
-  //but this works too. no need to change.
-  //QUESTION for Audrey: what is the difference between res and resReg? Which should we be returning.
+
+  EXMEM.nopFlag = 0;
+  EXMEM.skipMem = 1;
+  uint8_t err = * err_p;
   int32_t res = 0;
   uint8_t oper = 0x0;
   uint32_t sub;
-  int32_t v1 = regs[i1];
-  int32_t v2 = regs[i2];
   printf("controlUnit.ALUop: %d\n",controlUnit.ALUop);
 
   switch(controlUnit.ALUop){
-      //we will only be using controlUnit.ALUop to determine r-type instructions, and for sw and lw. that's it.
-        // rest will be based off opcode
+    //we will only be using controlUnit.ALUop to determine r-type instructions, and for sw and lw. that's it.
+    // rest will be based off opcode
     case 0b00: //this means that it's a load/store instruction (I-type)
-      //oper = 0x2; //(0010) - add
       res = v1 + v2; //res = reg[rs] + signext(offset)
+      EXMEM.skipMem = 0;
       break;
-
     case 0b01: //this means that it's a branch statement (I-type)
-      //oper = 0x6; // (0110) - subtract (I.E. beq)
-      sub = v1-v2;
-      sub = (sub == 0) ? 1 : 0; //if v1 = v2 ret 1, else ret 0
+      // (0110) - subtract (I.E. beq)
+      sub = (v1-v2 == 0) ? 1 : 0; //if v1 = v2 ret 1, else ret 0
       BranchUnit(sub,v2);
       break;
-      //res = PC + 4 + (imm<<2); //SEE CODE ABOVE
-
     case 0b10: //this means that it's an R-type instruction
-      printf("curIns.funct: %d\n",curIns.funct);
-
-
-         /* ***************************************************************
+    /* ***************************************************************
     R-type
-    ***************************************************************** */
+    ******************************************************************/
 
       //analyze funct field
-      switch(curIns.funct) {
+      switch(IDEX.ins.funct) {
         case 0b100000: //add (0x20)
-        //    oper = 0x2; //(0010) - add
+          //(0010) - add
             res = v1 + v2;
             break;
         case 0b100010: //subtract (0x22)
-          //  oper = 0x6; //(0110) - subtract
+          //(0110) - subtract
             res = v1 - v2;
             break;
         case 0b100100: //bit-wise AND (and with 0 opcode) (0x24)
-            //oper = 0x0; //(0000) - bitwise AND
+            //(0000) - bitwise AND
             res = v1 & v2;
             break;
         case 0b100101: //bit-wise OR (or with 0 opcode) (0x25)
-            //oper = 0x1; //(0001) - bitwise OR
+            //(0001) - bitwise OR
             res = v1 | v2;
             break;
         case 0b101010: //set on less than - slt (0x2a)
-            //oper = 0b111; //(0111) - set on less than
+            //(0111) - set on less than
             res = v1 < v2 ? 1 : 0;
             break;
 
         //additional cases not covered in textbook:
         case 0x21: //addu
-            //oper = 0x2;
             //TODO: will this be stored in res correctly?
             res = (uint32_t)((uint32_t)v1 + (uint32_t)v2);
-            ////////////CHANGE THIS - VANIKA. have to account for overflow. above code is not right. SIGNED NUMBERS ARE A-OKAY/////////////////////
+            //TODO: CHANGE THIS - VANIKA. have to account for overflow. above code is not right. SIGNED NUMBERS ARE A-OKAY/////////////////////
             break;
         case 0x08: //jr (this is an R-type instruction)
-            PC = v1;
+            EXMEM.PC = v1;
             break;
-        //Shift right arithmetic by variable bits: srav. TODO: figure out which it is.
         case 0x07: //nor. This is technically R-type, however in this case the controlUnit.ALUop will be different...do we need this?
-            //printf("INFO: Not implemented\n");
-            //v1 = ~v1;
-            //v2 = ~v2;
-            //how's this? (below)
+            printf("INFO: Hit \"nor\" instruction with ALUop value as expected for an R instruction, see confusion in comment, delete print if seen\n");
             res = ~(v1 | v2);
-            //oper = 0x0; //(AND) - using demorgans, ~(arg1 + arg2) = ~arg1 * ~arg2
             break;
         case 0x2b: //sltu
             res = v1 < v2 ? 1 : 0;
-            //oper = 0x2;
             break;
-        case 0x00: //sll -> is this allowed?
-            res = v1 << curIns.shamt;
+        case 0x00: //sll
+            res = v1 << IDEX.ins.shamt;
             break;
         case 0x02: //srl
-            res = v1 >> curIns.shamt;
+            res = v1 >> IDEX.ins.shamt;
             break;
         case 0x23: //subu TODO: am I casting correctly?
-            //oper = 0x6;
             //VANIKA - fix later.
             res = (uint32_t)((uint32_t)v1 - (uint32_t)v2);
             break;
-
         case 0x26: //xor. 38. 10 0110
             res = v1 ^ v2;
             break;
         case 0b001011: //movn
-            res = (v2 != 0) ? v2 : regs[resReg]; // if rt != 0 store rd's value in rs.
-            //else just store the current rd value back in rd.
+
+            //is v2 not equal to 0? if it is, store v2'd value in rd
+            //if v2 = 0, store rt's value back into rd
+            res = (v2 != 0) ? v2 : v1;
             break;
         case 0b001010: //movz
-            res = (v2 == 0) ? v2 : regs[resReg]; // if rt == 0 store rd's value in rs.
+            res = (v2 == 0) ? v2 : v1; // if rt == 0 store rd's value in rs.
             //else just store the current rd value back in rd.
             break;
       }
-
       break; //ending r-type instruction
 
 
@@ -233,7 +212,7 @@ int32_t ALU(uint8_t i1, uint8_t i2, int32_t imm, uint8_t * err_p, uint8_t resReg
        //for everything else beyond r-format instructions, and lw- and sw- specifically:
        //we will analyze the opcode of the instruction. these should all be either i or j format.
 
-       switch(curIns.opcode) {
+       switch(IDEX.ins.opcode) {
         case 0x8: //addi
             res = v1 + v2; //rt = rs + imm (what does "with overflow" mean?)
             break;
@@ -257,15 +236,15 @@ int32_t ALU(uint8_t i1, uint8_t i2, int32_t imm, uint8_t * err_p, uint8_t resReg
             break;
         case 0x24: //lbu
             res = v1 + v2; //res is the memory location for mem to reference. we don't sign extend here since it's talking about a byte
+            EXMEM.skipMem = 0;
             break;
         case 0x25: //lhu
             res = v1 + v2;
-            break;
-        /*case 0x30: //ll
-            res = v1 + v2;*/
+            EXMEM.skipMem = 0;
             break;
         case 0xf: //lui
             res = v1 + v2;
+            EXMEM.skipMem = 0;
             break;
         //lw
         case 0xd: //ori
@@ -279,12 +258,11 @@ int32_t ALU(uint8_t i1, uint8_t i2, int32_t imm, uint8_t * err_p, uint8_t resReg
             break;
         case 28: //sb
             res = v1 + v2;
+            EXMEM.skipMem = 0;
             break;
-        /*case 38: //sc
-            break;
-            */
         case 29: //sh
             res = v1 + v2;
+            EXMEM.skipMem = 0;
             break;
         //sw
         case 0b001110: //xori, 15
@@ -307,31 +285,39 @@ int32_t ALU(uint8_t i1, uint8_t i2, int32_t imm, uint8_t * err_p, uint8_t resReg
             break;
 
     /* ***************************************************************
-    J-type
+    J-type (TODO: add it here)
     ***************************************************************** */
 
      // code for J-type
-
-
         default:
-            printf("Instruction not found.");
-
-
-       }
-
-
-        err = 1;
-        printf("J-type?\n");
-        return;
+          printf("Instruction not found.");
+          err = 1;
+          printf("J-type?\n");
+          return;
+      }
   } //outer switch statement
   if (err) {
     printf("Error with ALU control unit. Please check Opcode and funct field detection.\n");
     return -1;
   }
 
-  regs[resReg] = res;
-  * err_p = err;
-  return err; //
+  *err_p = err;
+
+  //Set pipeline register values
+  /*int32_t ALUres;
+  uint8_t zero;
+  int32_t write_data;
+  uint32_t addr;
+  uint32_t PC;
+  uint8_t skipMem;
+  uint8_t nopFlag;
+  */
+  EXMEM.ALUres = res;
+  EXMEM.resReg = resReg;
+  EXMEM.zero = sub;
+  EXMEM.write_data = res;
+  EXMEM.PC = IDEX.PC; //TODO: For instructions that change the PC, is this correct?
+  return err;
 }
 int32_t signExt(int16_t offsetField) {
     uint32_t ans;

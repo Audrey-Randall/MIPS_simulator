@@ -33,3 +33,4 @@ Trivial but useful stuff electrical engineers may not go over:
 
 Questions for Vanika:
 - In ALU(): what's err for? And what's opcode for?
+- What instruction is r-type, funct = 7?

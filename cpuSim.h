@@ -16,18 +16,6 @@ We don't want a separate variable for the pc, do we?
 
 #define MEMSIZE 4096
 
-typedef struct Instruction{
-  uint8_t opcode:6;
-  uint8_t rs:5;
-  uint8_t rt:5;
-  uint8_t rd:5;
-  int8_t shamt:5;
-  uint8_t funct:6;
-  int16_t imm;
-  int32_t signextimm;
-  uint32_t addr:26;
-}Instruction;
-
 uint32_t memory[MEMSIZE];    //Program memory
 Instruction curIns;
 
@@ -36,7 +24,7 @@ Instruction curIns;
 void init();                //Initializes everything
 int parseInput();           //Reads input file and fills memory array with it
 int setCurIns();
-int32_t ALU(uint8_t i1, uint8_t i2, int32_t imm, uint8_t * err, uint8_t resReg);
+int32_t ALU(uint8_t i1, uint8_t i2, uint8_t * err_p, uint8_t resReg);
 int32_t signExt(int16_t offsetField);
 int dataMemoryUnit(int32_t addr, int32_t writeData);
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl);
