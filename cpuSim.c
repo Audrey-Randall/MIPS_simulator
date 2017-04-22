@@ -45,7 +45,7 @@ int parseInput(char* inFile){
 int setCurIns(){
   uint32_t ci = memory[IFID.PC];  //current instruction
   uint8_t opcode = (ci & 0xfc000000)>>26; //most significant 6 bits
-  ins.opcode = opcode;
+  IFID.ins.opcode = opcode;
   printf("OPCODE:");
   if(opcode==0x0){
     //printf("R instruction\n");
@@ -178,6 +178,7 @@ int32_t ALU(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
             break;
         case 0x00: //sll
             res = v1 << IDEX.ins.shamt;
+            if(v1 == 0 && v2 == 0 && IDEX.ins.shamt == 0) EXMEM.nopFlag = 1;
             break;
         case 0x02: //srl
             res = v1 >> IDEX.ins.shamt;
@@ -259,10 +260,12 @@ int32_t ALU(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
         case 28: //sb
             res = v1 + v2;
             EXMEM.skipMem = 0;
+            EXMEM.write_data = v2;
             break;
         case 29: //sh
             res = v1 + v2;
             EXMEM.skipMem = 0;
+            EXMEM.write_data = v2;
             break;
         //sw
         case 0b001110: //xori, 15

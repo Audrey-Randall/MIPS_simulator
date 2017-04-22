@@ -33,10 +33,11 @@ void ExecuteStage(){
     uint8_t err = 0;
 
     EXMEM.write_data = IDEX.ins.rt;
-    
+
     arg1 = regs[IDEX.ins.rs]; //r1 is always element in register file with index curIns.rs
     arg2 = mux(regs[IDEX.ins.rt], signExt(IDEX.ins.imm), controlUnit.ALUsrc); //ALU unit input mux
     ALU(arg1, arg2, &err, output); //output can be rs (R-format) or rt (I-format)
+    if(*err) printf("ERROR: ALU set its error flag\n");
     /*output of ALU will be as follows:
     -1 for error
     0 for successful R-format instruction
