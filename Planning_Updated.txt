@@ -1,0 +1,21 @@
+
+
+
+To-Do List 4/21/17
+
+     -move certain parts back to decode stage (branch prediction)
+     -implement the clock
+    - branch predictions/forwarding (3)
+     -jump instructions -> how?
+     -nop -> how? sll 0000 {czech}
+     -add in pipeline registers + shadow registers (if time)
+     -mem and writeback stage (today)
+     -figure out logic behind lb lbu etc
+     -unsigned vs signed operations -> overflow?
+     -control line -> set stuff
+    -ALU error detection
+    -find functions that used to take in the non-sign extended field for imm. we took out the function input so it might not work
+    -weird nor instruction comment 
+    -check if jump instruction should make the rest of the instructions
+    -print statement: overflow
+    -set control lines
