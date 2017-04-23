@@ -9,8 +9,8 @@ void init(){
   memset(&IDEX, 0, sizeof(IDEX));
   memset(&EXMEM, 0, sizeof(EXMEM));
   memset(&MEMWB, 0, sizeof(MEMWB));
-  memset(&curIns, 0, sizeof(curIns));
   memset(memory, 0, MEMSIZE);
+  regs[ZERO] = 0;
   PC = 0;
 }
 
@@ -76,16 +76,6 @@ int setCurIns(){
     IFID.ins.funct = 0; //itypes don't have funct
     InstructionType = Itype;
   }
-
-  #ifdef DEBUG
-  printf("\n***setCurIns***\n");
-  if(opcode==0x0) printf("R function\nRS: %d\nRT: %d\nRD: %d\nShamt: %d\nFunct: %d\n", curIns.rs, curIns.rt, curIns.rd, curIns.shamt, curIns.funct);
-  else if(opcode==0x2||opcode==0x3) printf("J instruction\nAddress w/o shift: %04X", curIns.addr);
-  else printf("I instruction\nOpcode: %d\nRS: %d\nRT: %d\nImm: %d\n", opcode, curIns.rs, curIns.rt, curIns.imm);
-  #endif
-
-    printf("\nopcode: %d\nrd: %d\nrs: %d\nrt: %d\nshamt: %d\nfunct: %d\nimmed: %d\n",curIns.opcode,curIns.rd,curIns.rs,curIns.rt,curIns.shamt,curIns.funct,curIns.imm);
-
 
   return 0;
 }
@@ -337,4 +327,32 @@ int dataMemoryUnit(int32_t addr, int32_t writeData){
 
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl){ //zero is rt, one is imm
   return ctrl?one:zero; //if ctrl = 1 choose one and if ctril = 0 then choose zero
+}
+
+//Load instruc from i-cache
+void c_loadi(){
+
+}
+
+//Store instruc in i-cache
+void c_storei(){
+
+}
+
+//Store data in d-cache
+void c_stored(){
+
+}
+
+//Load data from d-cache
+void c_loadd(){
+
+}
+
+void store(){
+  dataMem[EXMEM.ALUres] = EXMEM.write_data;
+}
+
+int32_t load() {
+  return dataMem[EXMEM.ALUres];
 }
