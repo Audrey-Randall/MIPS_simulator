@@ -22,7 +22,7 @@
 
 //Use writeback or write-through
 //On write-through, any instruction that writes to the cache writes to memory at the same time
-#define WRITEBACK 0
+#define WRITEBACK 1
 
 //Cache sizes in bytes
 #define ICACHESIZE 32 //8 words //128

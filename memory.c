@@ -59,6 +59,20 @@ void setAddrsData(int32_t addr, unsigned int* tag, int* block_addr, int* word_ad
   printf("***start_mem_block = 0x%X\n", (*start_mem_block)>>2);
 }
 
+void evictBlock(int block_addr){
+  int start_mem_block;
+  int numBlocks = DCACHESIZE/(BLOCKSIZE*4);
+  int wordsInBlock = BLOCKSIZE;
+  int bitsForBlock = log(numBlocks)/log(2);
+  int bitsForWord = log(wordsInBlock)/log(2);
+  int bitsForByte = 2;
+  int taglen = 32 - (bitsForBlock + bitsForWord + bitsForByte);
+  start_mem_block = (DCache[block_addr].tag<<(32-taglen)) | (block_addr<<(bitsForWord + bitsForByte));
+
+  memcpy((void*)writeBuffer.data, (void*)DCache[block_addr].data, 16*sizeof(uint32_t));
+  writeBuffer.memAddr = start_mem_block;
+}
+
 //Load instruc from i-cache
 void readInstr(){
 
@@ -85,6 +99,9 @@ void writeData(uint32_t addr, int32_t data, int* isHit){
     DCache[block_addr].valid = 1; //is this redundant?
     DCache[block_addr].data[word_addr] = data;
     //No need to change tag
+    if(!WRITEBACK) {
+      dataMem[addr>>2] = data;
+    }
   } else {
     //cache miss
     *isHit = 0;
@@ -93,8 +110,7 @@ void writeData(uint32_t addr, int32_t data, int* isHit){
       //Evict incorrect block
       if(DCache[block_addr].dirty) {
         //Fill write buffer
-        memcpy((void*)writeBuffer.data, (void*)DCache[block_addr].data, 16*sizeof(uint32_t));
-        writeBuffer.memAddr = start_mem_block;
+        evictBlock(block_addr);
         //Set bits
         DCache[block_addr].valid = 0;
         DCache[block_addr].dirty = 0;
@@ -107,12 +123,14 @@ void writeData(uint32_t addr, int32_t data, int* isHit){
       }
       //Load correct data into cache, write to it, mark it as dirty
       loadIntoDCache(addr, block_addr, tag, start_mem_block);
+      DCache[block_addr].valid = 1;
       DCache[block_addr].dirty = 1;
       DCache[block_addr].data[word_addr] = data;
       if(shouldFlush) flushWriteBuffer();
     } else {
       //Write-through:
       loadIntoDCache(addr, block_addr, tag, start_mem_block);
+      DCache[block_addr].valid = 1;
       DCache[block_addr].dirty = 1;
       DCache[block_addr].data[word_addr] = data;
       //Only need to write the updated word to memory, not the whole block
@@ -142,8 +160,7 @@ void readData(uint32_t addr, int* isHit){
       int shouldFlush = 0;
       //Evict incorrect block
       if(DCache[block_addr].dirty) {
-        memcpy((void*)writeBuffer.data, (void*)DCache[block_addr].data, 16*sizeof(uint32_t));
-        writeBuffer.memAddr = start_mem_block;
+        evictBlock(block_addr);
         DCache[block_addr].valid = 0;
         DCache[block_addr].dirty = 0;
         shouldFlush = 1;
@@ -152,16 +169,20 @@ void readData(uint32_t addr, int* isHit){
         DCache[block_addr].dirty = 0;
       }
       loadIntoDCache(addr, block_addr, tag, start_mem_block);
+      DCache[block_addr].valid = 1;
+      DCache[block_addr].dirty = 0;
       if(shouldFlush) flushWriteBuffer();
     } else {
       loadIntoDCache(addr, block_addr, tag, start_mem_block);
+      DCache[block_addr].valid = 1;
+      DCache[block_addr].dirty = 0;
     }
     //TODO: The timing will be way off here. Need to figure out how to let the cycles continue, how to break this up?
     //return DCache[block_addr].data[word_addr];
   }
 }
 
-void test1(){
+void testRW(){
   //16 words in memory
   //Block size 4 words
   //2 blocks per cache, 4 blocks in memory
@@ -183,6 +204,7 @@ void test1(){
     dataMem[i] = i;
   }
 
+  /***Test 1***/
   //Read on miss: DCache[addr1>>2].data[addr1's block and offset] = dataMem[addr1]
   //byte_addr = 0; word_addr = 3 = 0b11, block = 1, tag = 1
   readData(addr1, &isHit);
@@ -191,7 +213,7 @@ void test1(){
   printf("\nDCache block 1:\n");
   for(i = 0; i < BLOCKSIZE; i++) printf("%d, ", DCache[1].data[i]);
 
-  //Write on miss
+  //Write on hit, write-through
   printf("\n\n");
   //0xd<<2 = 110100
   //byte_addr = 00, word_addr = 01, block = 1, tag = 1
@@ -200,14 +222,30 @@ void test1(){
   for(i = 0; i < BLOCKSIZE; i++) printf("%d, ", DCache[0].data[i]);
   printf("\nDCache block 1:\n");
   for(i = 0; i < BLOCKSIZE; i++) printf("%d, ", DCache[1].data[i]);
+  printf("\nMemory:\n");
+  for(i = 0; i < MEMSIZE; i++) printf("%d, ", dataMem[i]);
   printf("\n\n");
 
+  /***Test 3: Writeback***/
+
+  //byte_addr = 00, word = 3, block = 1, tag = 0
+  writeData(addr3, 42, &isHit);
+  printf("isHit = %d, DCache block 0: \n", isHit);
+  for(i = 0; i < BLOCKSIZE; i++) printf("%d, ", DCache[0].data[i]);
+  printf("\nDCache block 1:\n");
+  for(i = 0; i < BLOCKSIZE; i++) printf("%d, ", DCache[1].data[i]);
+  printf("\nMemory:\n");
+  for(i = 0; i < MEMSIZE; i++) printf("%d, ", dataMem[i]);
+  printf("\n\n");
 }
 
-void test0(){
+void testAddr(){
+  /***Test 0***/
+
   //16 words in memory
   //Block size 4 words
   //2 blocks per cache, 4 blocks in memory
+  //Writethrough
 
   //KILLER FACT: When you index into memory using addr, you need to shift addr>>2. Addr is byte addressed (but word aligned), memory is word addressed.
 
@@ -243,6 +281,15 @@ void test0(){
 }
 
 int main(int argc, char** argv) {
+  /*
+  Tests 0-2:
+      #define MEMSIZE 16
+      #define BLOCKSIZE 4
+      #define WRITEBACK 0
+      #define ICACHESIZE 32
+      #define DCACHESIZE 32
+  Tests 3-???:
+  */
 
   memset(writeBuffer.data, 0, BLOCKSIZE); //TODO: transfer this into init
   int i;
@@ -263,8 +310,8 @@ int main(int argc, char** argv) {
   int addr4 = 0x2088009c;
 
   //Perform tests
-  //test0();
-  test1();
+  //testAddr(); //test 0
+  testRW(); //test 1, 2
 
   return 0;
 }
