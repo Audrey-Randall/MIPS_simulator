@@ -8,7 +8,12 @@
 
 //#define commandline
 #define codeblocks
-#define additionlogic
+//#define additionlogic
+ //#define memorypeek
+ #define regsassign
+ #define manmem
+
+
 #ifdef commandline
 int main(int argc, char** argv) {
     int progLen;
@@ -80,25 +85,46 @@ int main() {
         printf("\n random addition problems: \n");
 
         #endif // additionlogic
+
+
+        #ifdef memorypeek
+        uint64_t i = 0;
+        for (i=0; i<MEMSIZE; i++) {
+            printf("%d: %d\n",i, dataMem[i]);
+        }
+        #endif // memorypeek
+
+        #ifdef regsassign
+        uint32_t i;
+        for (i=0; i<32; i++) {
+            regfile.regs[i] = 2;
+            printf("Reg %d: %d\n",i, regfile.regs[i]);
+        }
+        #endif // regsassign
+        #ifdef manmem
+        uint32_t j;
+        for (j=0; j<MEMSIZE; j++) {
+            dataMem[j] = j;
+            //printf("MEM %d: %d\n",i, regfile.regs[i]);
+        }
+        #endif // manmem
+
     while(PC < progLen) {
-        printf("memory[%d]: 0x%08X-------------------------------------------------\n",PC, memory[PC]);
+        printf("\nmemory[%d]: 0x%08X-------------------------------------------------\n",PC, memory[PC]);
+        //for (i=0;i<5;i++) {
+        //printf("Reg %d: %d\n",i, regfile.regs[i]);
+        //}
+        printf("STARTING PC: %d\n",PC);
         FetchStage();
         DecodeStage();
         ExecuteStage();
         MemoryStage();
         WritebackStage();
+        printf("ENDING PC: %d\n",PC);
 
         //Cleanup
-        PC++;  //if it wasn't messed with elsewhere
+        //PC++;  //if it wasn't messed with elsewhere
         //memset(&curIns, 0, sizeof(curIns));
     }
-
-    #ifdef manualmemory
-    memory[0] = 0x2116022; //34693154, 000000 10000 10001 01100 00000 100010
-    memory[1] = 0x8C0C0; //573632, 000000 00000 01000 11000 00011 000000
-    memory[2] = 0x15F7F0; //1439728, 000000 00000 10101 11110 11111 110000
-    memory[3] = 0x2088009c; //545783964, 001000 00100 01000 0000000010011100
-    memory[4] = 0xCA9B987; //40648736, 000000 10011 01100 01000 00000 100000
-    #endif // manualmemory
 
 }

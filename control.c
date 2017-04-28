@@ -1,17 +1,12 @@
-#define OPCODE_R 0b000000 //0x00
-#define OPCODE_LW 0b100011 //0x23
-#define OPCODE_SW 0b101011 //0x2b
-#define OPCODE_BEQ 0b000100 //0x4
-
-
 
 #include "control.h"
 //#include "cpuSim.h"
 
 //Figure 4.22 tells how to implement this
-int setControls(uint8_t opcode){
-  switch(opcode){
-    case OPCODE_R:
+int setControls(uint16_t opcode){
+
+    //R-formats
+    if (opcode == OPCODE_R) {
       controlUnit.RegDst = 1;
       controlUnit.ALUsrc = 0;
       controlUnit.MemToReg = 0;
@@ -20,9 +15,14 @@ int setControls(uint8_t opcode){
       controlUnit.MemWrite = 0;
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b10;
+      controlUnit.Jump = 0;
       printf("R-format\n");
-      break;
-    case OPCODE_LW:
+      type = Rform;
+    }
+
+
+    //Loads
+    else if (opcode == OPCODE_LW) {
       controlUnit.RegDst = 0;
       controlUnit.ALUsrc = 1;
       controlUnit.MemToReg = 1;
@@ -31,9 +31,65 @@ int setControls(uint8_t opcode){
       controlUnit.MemWrite = 0;
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
+      controlUnit.Jump = 0;
       printf("LW-format\n");
-      break;
-    case OPCODE_SW:
+      type = Loads;
+    }
+    else if (opcode == OPCODE_LB) {
+      controlUnit.RegDst = 0;
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 1;
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 1;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = 0b00;
+      controlUnit.Jump = 0;
+      printf("LW-format\n");
+      type = Loads;
+    }
+    else if (opcode == OPCODE_LBU) {
+      controlUnit.RegDst = 0;
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 1;
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 1;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = 0b00;
+      controlUnit.Jump = 0;
+      printf("LW-format\n");
+      type = Loads;
+    }
+    else if (opcode == OPCODE_LHU) {
+      controlUnit.RegDst = 0;
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 1;
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 1;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = 0b00;
+      controlUnit.Jump = 0;
+      printf("LW-format\n");
+      type = Loads;
+    }
+    else if (opcode == OPCODE_LUI) {
+      controlUnit.RegDst = 0;
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 1;
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 1;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = 0b00;
+      controlUnit.Jump = 0;
+      printf("LW-format\n");
+      type = Loads;
+    }
+
+    //stores
+    else if (opcode == OPCODE_SW) {
       controlUnit.RegDst = 0;  //X in diagram in book
       controlUnit.ALUsrc = 1;
       controlUnit.MemToReg = 0;  //X in book
@@ -42,9 +98,39 @@ int setControls(uint8_t opcode){
       controlUnit.MemWrite = 1;
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
+      controlUnit.Jump = 0;
       printf("SW-format\n");
-      break;
-    case OPCODE_BEQ:
+      type = stores;
+    }
+    else if (opcode == OPCODE_SB) {
+      controlUnit.RegDst = 0;  //X in diagram in book
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 0;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 1;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = 0b00;
+      controlUnit.Jump = 0;
+      printf("SW-format\n");
+      type = stores;
+    }
+    else if (opcode == OPCODE_SH) {
+      controlUnit.RegDst = 0;  //X in diagram in book
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 0;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 1;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = 0b00;
+      controlUnit.Jump = 0;
+      printf("SW-format\n");
+      type = stores;
+    }
+
+    //Branch-format
+    else if (opcode == OPCODE_BEQ) {
       controlUnit.RegDst = 0;  //X in book
       controlUnit.ALUsrc = 0;
       controlUnit.MemToReg = 0;  //X in book
@@ -53,12 +139,203 @@ int setControls(uint8_t opcode){
       controlUnit.MemWrite = 0;
       controlUnit.Branch = 1;
       controlUnit.ALUop = 0b01;
+      controlUnit.Jump = 0;
       printf("BEQ-format\n");
-      break;
-    default:printf("WARNING: Control lines not set.\n");
-    //To-DO: figure out why instructions are not giving default output
-      return -1;
-  }
+      type = branches;
+    }
+    else if (opcode == OPCODE_BGTZ) {
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 0;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 0;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 1;
+      controlUnit.ALUop = 0b01;
+      controlUnit.Jump = 0;
+      printf("BEQ-format\n");
+      type = branches;
+    }
+    else if (opcode == OPCODE_BLEZ) {
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 0;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 0;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 1;
+      controlUnit.ALUop = 0b01;
+      controlUnit.Jump = 0;
+      printf("BEQ-format\n");
+      type = branches;
+    }
+    else if (opcode == OPCODE_BNE) {
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 0;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 0;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 1;
+      controlUnit.ALUop = 0b01;
+      controlUnit.Jump = 0;
+      printf("BEQ-format\n");
+      type = branches;
+    }
+    else if (opcode == OPCODE_BLTZ) {
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 0;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 0;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 1;
+      controlUnit.ALUop = 0b01;
+      controlUnit.Jump = 0;
+      printf("BEQ-format\n");
+      type = branches;
+    }
+
+    //Jump-formats (ADD TO ALU)
+    else if (opcode == OPCODE_J || opcode == OPCODE_JAL) {
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 0;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 0;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = -1;
+      controlUnit.Jump = 1;
+      printf("Jump Type\n");
+      type = jumps;
+    }
+
+    else if (opcode == OPCODE_JAL) {
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 0;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 0;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = 0;
+      controlUnit.Jump = 1;
+      printf("Jump Type\n");
+      type = jumps;
+    }
+
+
+    //I-formats (i.e. the remaining ones)
+    else if (opcode == OPCODE_ADDI) {
+
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = -1;
+      controlUnit.Jump = 0;
+      printf("I-format instructions\n");
+      type = Iform;
+    }
+
+    else if (opcode == OPCODE_ADDUI) {
+
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = -1;
+      controlUnit.Jump = 0;
+      printf("I-format instructions\n");
+      type = Iform;
+    }
+
+    else if (opcode == OPCODE_ANDI) {
+
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = -1;
+      controlUnit.Jump = 0;
+      printf("I-format instructions\n");
+      type = Iform;
+    }
+    else if (opcode == OPCODE_XORI) {
+
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = -1;
+      controlUnit.Jump = 0;
+      printf("I-format instructions\n");
+      type = Iform;
+    }
+
+    else if (opcode == OPCODE_ORI) {
+        printf("\n \n \n ORI \n");
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = -1;
+      controlUnit.Jump = 0;
+      printf("I-format instructions\n");
+      type = Iform;
+    }
+
+    else if (opcode == OPCODE_SLTI) {
+
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = -1;
+      controlUnit.Jump = 0;
+      printf("I-format instructions\n");
+      type = Iform;
+    }
+
+    else if (opcode == OPCODE_SLTUI) {
+
+      controlUnit.RegDst = 0;  //X in book
+      controlUnit.ALUsrc = 1;
+      controlUnit.MemToReg = 0;  //X in book
+      controlUnit.RegWrite = 1;
+      controlUnit.MemRead = 0;
+      controlUnit.MemWrite = 0;
+      controlUnit.Branch = 0;
+      controlUnit.ALUop = -1;
+      controlUnit.Jump = 0;
+      printf("I-format instructions\n");
+      type = Iform;
+    }
+
+    else {
+        printf("WARNING: Control lines not set.\n");
+        return -1;
+    }
+
   return 0;
 }
 

@@ -38,7 +38,8 @@
 #define RA 31
 
 typedef struct Instruction{
-  uint8_t opcode:6;
+  uint32_t instruct;
+  uint16_t opcode;
   uint8_t rs:5;
   uint8_t rt:5;
   uint8_t rd:5;
@@ -59,37 +60,81 @@ typedef struct Idex {
   Instruction ins;
   uint32_t PC;
   uint8_t nopFlag;
-  int32_t write_data;
-  int8_t write_reg; //Write to this reg on load instrucs. On store instrucs, this will be -1, so the mem stage can tell whether it should load or store.
+  int32_t regdata1; //register value 1
+  int32_t regdata2; //register value 2 after mux
+
+  //int32_t write_data; //register place to write data
+  //uint8_t write_reg; //Write to this reg on load instrucs. On store instrucs, this will be -1, so the mem stage can tell whether it should load or store.
+
+  uint8_t write_to_mem_reg; //reg number for SW
+  int32_t write_to_mem_val; //value for SW
 }Idex;
 
 typedef struct Exmem {
-  uint8_t resReg; //same as write_reg? But this gets passed from ex, not id
+  //carried over from ifid
+  Instruction ins;
+
+  //exmem stuff
+  //uint8_t resReg; //same as write_reg? But this gets passed from ex, not id
   int32_t ALUres; //address for the mem stage to write to, if mem stage necessary. If not, it's result for reg.
   uint8_t zero;
-  int32_t write_data; //Passed through from decode stage
-  int8_t write_reg; //Passed through from decode
   uint32_t addr;
   uint32_t PC;
-  uint8_t skipMem;
+  //uint8_t skipMem;
   uint8_t nopFlag;
+
+  //lw
+ //memory address to fetch out
+  uint8_t write_reg; //register number to be written to
+  uint32_t write_addr;
+
+  //for SW
+  int32_t write_data;
+  uint8_t write_to_mem_reg; //reg number for SW
+  int32_t write_to_mem_val; //value for SW
 }Exmem;
 
 typedef struct Memwb {
-  uint8_t resReg; //same as write_reg?
-  uint32_t ALUres;
-  int32_t read_data; //data that was just read in
-  int32_t write_data; //Data to be written
-  int8_t write_reg; //If -1, write the write_data to ALUres. If valid reg number, read datamem[ALUres] into regs[write_reg]
+  int32_t ALUres;
+  int32_t read_data; //data that was just read (lw)
+
+  uint8_t write_reg;  //register to write to (lw)
+  uint32_t write_addr; //address to seek from (lw)
+
+  int32_t write_data; //memory to write to (sw)
+
   uint32_t PC;
-  uint8_t skipWB;
+  Instruction ins;
+
+  //uint8_t skipWB;
   uint8_t nopFlag;
 }Memwb;
 
-uint32_t regs[32];      //Registers, if you want to modify T0 you can use regs[T0]
+typedef struct Registerfile {
+    uint32_t regs[32];      //Registers, if you want to modify T0 you can use regs[T0]
+    uint8_t readreg1;
+    uint8_t readreg2;
+    uint8_t writereg; //register number to be written to
+    int8_t writeval; //value that needs to be written to register
+    int32_t regdata1;
+    int32_t regdata2;
+    //readdata1 can be referred to as regs[readreg1] and same for others.
+}Registerfile;
+
+typedef struct ALUUnit {
+    uint32_t input1;
+    uint32_t input2;
+    uint32_t zero;
+    uint32_t ALUres;
+    uint32_t ALUtomem; //memory address to store in memory
+} ALU;
+
+
+ALU alu;
+Registerfile regfile;
 Ifid IFID;
 Idex IDEX;
 Exmem EXMEM;
 Memwb MEMWB;
-uint32_t PC;
+uint32_t PC; //global PC to be updated at the end of the last pipeline register
 #endif

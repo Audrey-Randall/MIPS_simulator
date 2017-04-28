@@ -17,5 +17,5 @@
 //TODO: declare write buffer. Block sized?
 
 uint32_t memory[MEMSIZE];    //Program memory
-int32_t dataMem[MEMSIZE];    //Data memory. TODO: Should this be signed or unsigned or does it matter?
+int32_t dataMem[MEMSIZE];    //Data memory. TODO: Should this be signed or unsigned or does it matter? signed. as datamem can be neg
 #endif

@@ -21,7 +21,8 @@ We don't want a separate variable for the pc, do we?
 void init();                //Initializes everything
 int parseInput();           //Reads input file and fills memory array with it
 int setCurIns();
-int32_t ALU(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg);
+int32_t ALUfunct(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg);
+
 int32_t signExt(int16_t offsetField);
 int dataMemoryUnit(int32_t addr, int32_t writeData);
 int32_t mux(int32_t zero, int32_t one, uint8_t ctrl);
