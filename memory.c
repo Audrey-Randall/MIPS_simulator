@@ -134,7 +134,7 @@ void writeData(uint32_t addr, int32_t data, int* isHit){
       DCache[block_addr].dirty = 1;
       DCache[block_addr].data[word_addr] = data;
       //Only need to write the updated word to memory, not the whole block
-      dataMem[addr] = data;
+      dataMem[addr>>2] = data;
     }
   }
 }
@@ -213,7 +213,7 @@ void testRW(){
   printf("\nDCache block 1:\n");
   for(i = 0; i < BLOCKSIZE; i++) printf("%d, ", DCache[1].data[i]);
 
-  //Write on hit, write-through
+  //Write on hit
   printf("\n\n");
   //0xd<<2 = 110100
   //byte_addr = 00, word_addr = 01, block = 1, tag = 1
@@ -228,6 +228,7 @@ void testRW(){
 
   /***Test 3: Writeback***/
 
+  //Write on miss
   //byte_addr = 00, word = 3, block = 1, tag = 0
   writeData(addr3, 42, &isHit);
   printf("isHit = %d, DCache block 0: \n", isHit);
