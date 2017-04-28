@@ -8,7 +8,7 @@ uint8_t checkValidData(uint32_t tag, int block_addr){
 
 //We never write from cache to instruc memory
 void flushWriteBuffer(){
-  memcpy(&(dataMem[writeBuffer.memAddr>>2]), writeBuffer.data, BLOCKSIZE);
+  memcpy(&(dataMem[writeBuffer.memAddr>>2]), writeBuffer.data, BLOCKSIZE*4);
 }
 
 //TODO: how the hell do we mimic asynchronicity? We need some sort of state machine that will keep track of how much stuff has been updated. Maybe add a "actually written yet" array to Block struct? One bool per word? Then calculate clock cycle penalties artificially?
@@ -16,7 +16,7 @@ void loadIntoDCache(uint32_t addr, int block_addr, unsigned int tag, uint32_t st
   //TODO: Set all globals that tell the processor when its data will be available, to calculate cycles, etc
   //Dirty and valid bits set in read/write functions. Tag and data set here.
   DCache[block_addr].tag = tag;
-  memcpy(DCache[block_addr].data, &(dataMem[start_block_addr>>2]), BLOCKSIZE);
+  memcpy(DCache[block_addr].data, &(dataMem[start_block_addr>>2]), BLOCKSIZE*4);
 }
 
 
