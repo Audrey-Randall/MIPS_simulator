@@ -5,6 +5,7 @@
 
 uint32_t ci;
 void FetchStage();
+//void DecodeStage(uint32_t EOP);
 void DecodeStage();
 void ExecuteStage();
 void MemoryStage();

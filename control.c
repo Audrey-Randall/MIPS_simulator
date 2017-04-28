@@ -2,6 +2,7 @@
 #include "control.h"
 //#include "cpuSim.h"
 
+
 //Figure 4.22 tells how to implement this
 int setControls(uint16_t opcode){
 

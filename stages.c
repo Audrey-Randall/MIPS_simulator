@@ -12,13 +12,12 @@ void FetchStage(){
 
     //3. PC incremented, stored to pipeline, for need in things like branch instruction
     PC++;
-    IFID.PC = PC++;
+    IFID.PC = PC;
 
     //printf("IFID.PC: %d\n",IFID.PC);
 }
 
-void DecodeStage(){
-
+void DecodeStage() {
     //TODO: check if jump instruc should make rest of stages be nops
 
     //1. Instruction decode. Register numbers, imm fields, etc. supplied.
@@ -62,16 +61,58 @@ void DecodeStage(){
 
     //8. jr
     if(IDEX.ins.funct == 0x8) {
+        if (IDEX.ins.instruct == 0x00000008) {
+            IDEX.nopFlag = 1;
+            IDEX.EOP_flag = -1; //ends program
+            return;
+        }
         printf("DEBUG:///PC before jump: %d\n",PC);
         IDEX.PC = regfile.regs[IDEX.ins.rs];
         controlUnit.Jump = 1; //this needs to be set as the below stages need this information
-        //PC = IDEX.PC; //this is what is causing the infinite loop
+        PC = IDEX.PC; //this is what is causing the infinite loop
         printf("DEBUG:///PC after jump: %d\n",regfile.regs[IDEX.ins.rs]);
         return;
     }
     //9. Jump / Branches should occur in decode. Add here.
     if (controlUnit.Jump) {
-        printf("JUMP!\n");
+        if (IDEX.ins.opcode == 0x2) {
+
+            //an arbitrary example of some address "var"
+            /*
+            uint32_t var = 0x22222222;
+            uint32_t temp1 = (uint32_t)(var & 0xf0000000);
+            printf("IFID.ins.addr before editing: %08X\n",IFID.ins.addr);
+            IFID.ins.addr = 0x000000ff;
+            uint32_t temp2 = (IFID.ins.addr << 2);
+            uint32_t temp3 = (0x00);
+            uint32_t finaladdress = (temp1 | temp2 | temp3);
+            printf("temp1: %08X, temp2: %08X, temp3: %08X, finaladd: %08X\n",temp1,temp2,temp3,finaladdress);
+            */
+            printf("IFID.ins.addr before editing: %08X\n",IFID.ins.addr);
+            uint32_t temp1 = (uint32_t)(IFID.ins.addr & 0xf0000000);
+            uint32_t temp2 = (IFID.ins.addr << 2);
+            uint32_t temp3 = (uint32_t)(0x00);
+            uint32_t finaladdress = (temp1 | temp2 | temp3);
+            printf("temp1: %08X, temp2: %08X, temp3: %08X, finaladd: %08X\n",temp1,temp2,temp3,finaladdress);
+            PC = finaladdress; //jump to this address
+            IDEX.nopFlag = 1; //so we skip over all the next stages
+            printf("JUMP!\n");
+            //IDEX.EOP_flag = -1; //ends program - REMOVE IN ACTUAL IMPLEMENTATION
+
+        }
+        else if (IDEX.ins.opcode = 0x3) {
+            printf("IFID.ins.addr before editing: %08X\n",IFID.ins.addr);
+            uint32_t temp1 = (uint32_t)(IFID.ins.addr & 0xf0000000);
+            uint32_t temp2 = (IFID.ins.addr << 2);
+            uint32_t temp3 = (uint32_t)(0x00);
+            uint32_t finaladdress = (temp1 | temp2 | temp3);
+            printf("temp1: %08X, temp2: %08X, temp3: %08X, finaladd: %08X\n",temp1,temp2,temp3,finaladdress);
+            regfile.regs[RA] = finaladdress;
+            PC = finaladdress;
+            printf("JAL!\n");
+            printf("ENDING PC: %d\n",PC);
+            //IDEX.EOP_flag = -1; //ends program - REMOVE IN ACTUAL IMPLEMENTATION
+        }
         return;
     }
 

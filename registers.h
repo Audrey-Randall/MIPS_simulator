@@ -68,6 +68,8 @@ typedef struct Idex {
 
   uint8_t write_to_mem_reg; //reg number for SW
   int32_t write_to_mem_val; //value for SW
+
+  uint32_t EOP_flag; //unique to this as we figure this out after decode stage
 }Idex;
 
 typedef struct Exmem {

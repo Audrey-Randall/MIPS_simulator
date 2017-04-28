@@ -109,6 +109,7 @@ int main() {
         }
         #endif // manmem
 
+        uint32_t endofprog = 0;
     while(PC < progLen) {
         printf("\nmemory[%d]: 0x%08X-------------------------------------------------\n",PC, memory[PC]);
         //for (i=0;i<5;i++) {
@@ -117,6 +118,7 @@ int main() {
         printf("STARTING PC: %d\n",PC);
         FetchStage();
         DecodeStage();
+        if (IDEX.EOP_flag) break;
         ExecuteStage();
         MemoryStage();
         WritebackStage();
@@ -126,5 +128,6 @@ int main() {
         //PC++;  //if it wasn't messed with elsewhere
         //memset(&curIns, 0, sizeof(curIns));
     }
+    printf("Program complete\n");
 
 }
