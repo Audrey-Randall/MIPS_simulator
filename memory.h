@@ -23,7 +23,7 @@
 #define ICACHESIZE 128
 #define DCACHESIZE 256
 
-//TODO: declare write buffer. Block sized?
+int32_t writeBuffer[BLOCKSIZE]; //TODO: needs to be 1 word for write-back
 
 //Data is stored as 32-bit integers. If you need to address in to a byte, you need a mask.
 typedef struct Block {
