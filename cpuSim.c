@@ -96,7 +96,7 @@ void BranchUnit (uint32_t zerosig, uint32_t signeximm) {
     printf("Old PC: %d\n",PC);
     uint32_t input1 = PC + signeximm<<2; //result of the alu
     uint32_t input0 = PC; //these are the incremented versions of PC, different than the actual PC we are on.
-    printf("signeximm: %d, input0: %d, input1: %d\n",signeximm,input0,input1);
+    printf("offset: %d, PC: %d, PC+offset: %d\n",signeximm<<2,input0,input1);
     uint32_t s = controlUnit.Branch & zerosig;
     //if v1 == v2, 1 & 1 = 1, we choose the branched address
     //if v1 != v2, 1 & 0 = 0, we chose just PC + 4.

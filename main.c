@@ -129,6 +129,7 @@ int main() {
         MemoryStage();
         WritebackStage();
         printf("ENDING PC: %d\n",PC);
+        if(PC > 40) break;
 
         //Cleanup
         //PC++;  //if it wasn't messed with elsewhere
