@@ -4,11 +4,11 @@
 
 void printCurrentInstruction(){
   if(IFID.ins.opcode==0x0){
-    printf("R instruction. Rs = %d, Rt = %d, Rd = %d, funct = %d.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+    printf("R instruction. Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
   } else if(IFID.ins.opcode==0x2 || IFID.ins.opcode==0x3) {
-    printf("J instruction. Addr = %d\n", IFID.ins.addr);
+    printf("J instruction opcode %d. Addr = %d\n", IFID.ins.opcode, IFID.ins.addr);
   } else {
-    printf("I instruction. Rs = %d, Rt = %d, Imm = %d\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.imm);
+    printf("I instruction opcode %d. Rs = %d, Rt = %d, Imm = %d\n", IFID.ins.opcode, IFID.ins.rs, IFID.ins.rt, IFID.ins.imm);
   }
 }
 
@@ -33,7 +33,7 @@ void FetchStage(){
 
 void printControls(){
   printf("Controls:  ALUop = %d, ALUsrc= %d, RegWrite = %d, MemWrite = %d, MemToReg = %d, MemRead = %d,PCsrc = %d, RegDst = %d, Branch = %d, Jump = %d\n",
-  controlUnit.RegWrite,controlUnit.MemWrite, controlUnit.MemToReg, controlUnit.MemRead, controlUnit.PCsrc, controlUnit.RegDst, controlUnit.Branch, controlUnit.Jump);
+  controlUnit.ALUop, controlUnit.ALUsrc, controlUnit.RegWrite,controlUnit.MemWrite, controlUnit.MemToReg, controlUnit.MemRead, controlUnit.PCsrc, controlUnit.RegDst, controlUnit.Branch, controlUnit.Jump);
 }
 
 int isLoadOrStore(uint16_t oc){
@@ -56,6 +56,7 @@ void DecodeStage() {
     int32_t v1 = regfile.regs[IFID.ins.rs];
     int32_t v2 = regfile.regs[IFID.ins.rt];
     int32_t signext = signExt(IFID.ins.imm);
+    printf("\tv1 = %d and v2 = %d\n", v1, v2);
 
     //TODO: check if jump instruc should make rest of stages be nops
 
@@ -259,7 +260,7 @@ void MemoryStage(){
             printf("DEBUG: ///memory location: %d, memory value: %d, register location: %d/n",EXMEM.write_addr,MEMWB.read_data,MEMWB.write_reg);
         }
         else  {
-            printf("ERROR: Memorystage is not detecting whether to involve mem or not properly.\n");
+            printf("ERROR: Memorystage is not detecting whether to involve mem or not properly at #2.\n");
             return;
         }
     }
@@ -273,11 +274,10 @@ void MemoryStage(){
             printf("DEBUG: ////// dataMem[%d] = %d\n",EXMEM.ALUres,dataMem[EXMEM.ALUres>>2]);
         }
         else  {
-            printf("ERROR: Memorystage is not detecting whether to involve mem or not properly.\n");
+            printf("ERROR: Memorystage is not detecting whether to involve mem or not properly at #3.\n");
             return;
         }
     }
-    else printf("ERROR: Memorystage is not detecting whether to involve mem or not properly.\n");
 
     MEMWB.ALUres = EXMEM.ALUres; //store ALU result in EXMEM
     MEMWB.ins.instruct = EXMEM.ins.instruct;

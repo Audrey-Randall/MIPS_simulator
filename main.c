@@ -10,8 +10,8 @@
 #define codeblocks
 //#define additionlogic
  //#define memorypeek
- #define regsassign
- #define manmem
+ //#define regsassign
+ //#define manmem
 
  #define program1
 
@@ -121,10 +121,7 @@ int main() {
         uint32_t endofprog = 0;
     while(PC != 0) {
         printf("\n\n\nmemory[%d]: 0x%08X-------------------------------------------------\n",PC>>2, memory[PC>>2]);
-        //for (i=0;i<5;i++) {
-        //printf("Reg %d: %d\n",i, regfile.regs[i]);
-        //}
-        printf("STARTING PC: %d\n",PC);
+        memset((void*)&controlUnit, 0, sizeof(controlUnit));
         FetchStage();
         DecodeStage();
         ExecuteStage();

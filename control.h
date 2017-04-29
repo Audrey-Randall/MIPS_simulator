@@ -67,16 +67,16 @@ typedef enum I_Tracker {Rtype = 0, Itype = 1, Jtype = 2} Instruction_Tracker;
 Instruction_Tracker InstructionType;
 
 typedef struct ControlUnit {
-  uint8_t ALUop:2;
-  uint8_t ALUsrc:1;
-  uint8_t RegWrite:1;
-  uint8_t MemWrite:1;
-  uint8_t MemToReg:1;
-  uint8_t MemRead:1;
-  uint8_t PCsrc:1;
-  uint8_t RegDst:1;
-  uint8_t Branch:1;
-  uint8_t Jump:1;
+  uint8_t ALUop;
+  uint8_t ALUsrc;
+  uint8_t RegWrite;
+  uint8_t MemWrite;
+  uint8_t MemToReg;
+  uint8_t MemRead;
+  uint8_t PCsrc;
+  uint8_t RegDst;
+  uint8_t Branch;
+  uint8_t Jump;
 }ControlUnit;
 
 ControlUnit controlUnit;

@@ -11,7 +11,7 @@ void init(){
   memset(&EXMEM, 0, sizeof(EXMEM));
   memset(&MEMWB, 0, sizeof(MEMWB));
   memset(memory, 0, MEMSIZE);
-  regfile.regs[ZERO] = 0;
+  memset(&regfile, 0, sizeof(regfile));
   WasBranch = 0;
   ShouldExec = 1;
   PC = 0;
