@@ -2,7 +2,7 @@
 #include "registers.h"
 #define Nop() {_asm nop _endasm}
 
-
+//#define branchsubunit
 //Initialize structs
 void init(){
   memset(&controlUnit, 0, sizeof(controlUnit));
@@ -92,17 +92,18 @@ void BranchUnit (uint32_t zerosig, uint32_t signeximm) {
 
 //subtract the two inputs -> done outside of this function
 //uint32_t output = controlUnit.Branch & sub
-    printf("sub: %d, controlUnit.branch: %d\n",zerosig,controlUnit.Branch);
+    printf("zerosignal: %d, controlUnit.branch: %d\n",zerosig,controlUnit.Branch);
     printf("Branch!!!!!\n");
-    printf("Old PC: %d\n",IDEX.PC);
-    uint32_t input1 = IDEX.PC + signeximm; //result of the alu
-    uint32_t input0 = IDEX.PC; //these are the incremented versions of PC, different than the actual PC we are on.
-    printf("IDEX.PC: %d, signeximm: %d, input0: %d, input1: %d\n",IDEX.PC,signeximm,input0,input1);
+    printf("Old PC: %d\n",PC);
+    uint32_t input1 = PC + signeximm; //result of the alu
+    uint32_t input0 = PC; //these are the incremented versions of PC, different than the actual PC we are on.
+    printf("signeximm: %d, input0: %d, input1: %d\n",signeximm,input0,input1);
     uint32_t s = controlUnit.Branch & zerosig;
     //if v1 == v2, 1 & 1 = 1, we choose the branched address
     //if v1 != v2, 1 & 0 = 0, we chose just PC + 4.
-    IDEX.PC = mux(input0, input1, s); //ALU unit input mux
-    printf("New PC: %d\n",IDEX.PC);
+    PC = mux(input0, input1, s); //ALU unit input mux
+    //PC = IDEX.PC;
+    printf("New PC: %d\n",PC);
 
 }
 
@@ -125,9 +126,16 @@ int32_t ALUfunct(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
       alu.ALUres = v1 + v2; //res = reg[rs] + signext(offset)
       break;
 
+
+
     case 0b01: //branch
+
+      #ifdef branchsubunit
       alu.zero = (v1-v2 == 0) ? 1 : 0; //if v1 = v2 ret 1, else ret 0
       BranchUnit(alu.zero,v2);
+      #endif // branchsubunit
+
+
       break;
 
     case 0b10: //R-type - analyze funct field
@@ -223,9 +231,12 @@ int32_t ALUfunct(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
             break;
         case 0x5: //bne
             //same logic as above, except we just check if they aren't equal
+            #ifdef branchsubunit
             alu.zero = v1-v2;
             alu.zero = (alu.zero != 0) ? 1 : 0; //if v1 = v2 ret 1, else ret 0
             BranchUnit(alu.zero,v2);
+            #endif // branchsubunit
+
             break;
         case 0x24: //lbu
             alu.ALUres = v1 + v2; //res is the memory location for mem to reference. we don't sign extend here since it's talking about a byte
@@ -264,17 +275,23 @@ int32_t ALUfunct(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
             alu.ALUres = v1 ^ v2;
             break;
         case 0b000111: //bgtz, 7
+            #ifdef branchsubunit
             alu.zero = (v1 > 0) ? 1: 0;
             BranchUnit(alu.zero,v2);
+            #endif // branchsubunit
             break;
         case 0b000001: //bltz, 1
+            #ifdef branchsubunit
             alu.zero = (v1 < 0) ? 1: 0;
             BranchUnit(alu.zero,v2);
+            #endif // branchsubunit
             break;
         case 0b000110: //blez, 6
+            #ifdef branchsubunit
             alu.zero = (v1 <= 0) ? 1: 0;
             //printf("sub: %d\n",sub);
             BranchUnit(alu.zero,v2);
+            #endif // branchsubunit
             break;
         case 0b100000: //lb, 32
             alu.ALUres = v1 + v2;

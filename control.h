@@ -75,6 +75,8 @@ typedef struct ControlUnit {
   uint8_t RegDst:1;
   uint8_t Branch:1;
   uint8_t Jump:1;
+  uint8_t WasBranch:1; //to denote that a branch has occurred within last 2 instructions (forwarding)
+  uint8_t ShouldExec:1; //for delayed branch
 }ControlUnit;
 
 ControlUnit controlUnit;

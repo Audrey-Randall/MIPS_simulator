@@ -4,8 +4,19 @@
 
 void FetchStage(){
 
+    //branch control logic
+    if (controlUnit.WasBranch && !controlUnit.ShouldExec) {
+        controlUnit.ShouldExec = 1;
+    }
+
+    else if (controlUnit.WasBranch && controlUnit.ShouldExec) {
+        controlUnit.WasBranch = 0;
+        controlUnit.ShouldExec = 0;
+    }
+
     //1. Instruction is read from memory using the address in the PC
     ci = memory[PC];  //current instruction
+    //branch PC logic
 
     //2. Instruction itself is stored into IFID register.
     IFID.ins.instruct = ci;
@@ -18,10 +29,19 @@ void FetchStage(){
 }
 
 void DecodeStage() {
-    //TODO: check if jump instruc should make rest of stages be nops
+
 
     //1. Instruction decode. Register numbers, imm fields, etc. supplied.
     setCurIns(ci);
+
+    //branch variables
+    uint8_t zero=0;
+    int32_t v1 = regfile.regs[IFID.ins.rs];
+    int32_t v2 = regfile.regs[IFID.ins.rt];
+    int32_t signext = signExt(IFID.ins.imm);
+
+    //TODO: check if jump instruc should make rest of stages be nops
+
 
     //2. Based off of this decoding, set control lines
     setControls(IFID.ins.opcode);
@@ -59,20 +79,6 @@ void DecodeStage() {
         IDEX.write_to_mem_val = regfile.regs[IDEX.write_to_mem_reg]; //store value of this reg
     }
 
-    //8. jr
-    if(IDEX.ins.funct == 0x8) {
-        if (IDEX.ins.instruct == 0x00000008) {
-            IDEX.nopFlag = 1;
-            IDEX.EOP_flag = -1; //ends program
-            return;
-        }
-        printf("DEBUG:///PC before jump: %d\n",PC);
-        IDEX.PC = regfile.regs[IDEX.ins.rs];
-        controlUnit.Jump = 1; //this needs to be set as the below stages need this information
-        PC = IDEX.PC; //this is what is causing the infinite loop
-        printf("DEBUG:///PC after jump: %d\n",regfile.regs[IDEX.ins.rs]);
-        return;
-    }
     //9. Jump / Branches should occur in decode. Add here.
     if (controlUnit.Jump) {
         if (IDEX.ins.opcode == 0x2) {
@@ -114,6 +120,38 @@ void DecodeStage() {
             //IDEX.EOP_flag = -1; //ends program - REMOVE IN ACTUAL IMPLEMENTATION
         }
         return;
+    }
+
+    //branch logic
+    if (controlUnit.Branch || controlUnit.WasBranch) {
+        printf("BRAAAAAAAAAANCH\n");
+        IDEX.nopFlag = 1;
+        printf("IDEX.ins.opcode: %d\n",IDEX.ins.opcode);
+
+        if (IDEX.ins.opcode == OPCODE_BEQ) {
+            zero = (v1-v2 == 0) ? 1 : 0; //if v1 = v2 ret 1, else ret 0
+            BranchUnit(zero,signext);
+        }
+        else if (IDEX.ins.opcode == OPCODE_BGTZ) {
+            printf("BGTZ:v1: %d\n",v1);
+            zero = (v1 > 0) ? 1: 0;
+            BranchUnit(zero,signext);
+        }
+        else if (IDEX.ins.opcode == OPCODE_BLEZ) {
+            printf("BLEZ:v1: %d\n",v1);
+            zero = (v1 <= 0) ? 1: 0;
+            BranchUnit(zero,signext);
+        }
+        else if (IDEX.ins.opcode == OPCODE_BNE) {
+            zero = (v1-v2 != 0) ? 1 : 0; //if v1 = v2 ret 1, else ret 0
+            BranchUnit(zero, signext);
+        }
+        else if (IDEX.ins.opcode == OPCODE_BLTZ) {
+            zero = (v1 < 0) ? 1: 0;
+            BranchUnit(zero,signext);
+        }
+        else printf("Error with branching in decode stage. Please check logic.\n");
+
     }
 
 
@@ -171,12 +209,27 @@ void ExecuteStage(){
         EXMEM.write_addr = EXMEM.ALUres; //memory address to seek
     }
 
-    //6. Jump stuff!
+    //8. jr
+    if(EXMEM.ins.funct == 0x8) {
+        if (EXMEM.ins.instruct == 0x00000008) {
+            EXMEM.nopFlag = 1;
+            EXMEM.EOP_flag = -1; //ends program
+            return;
+        }
+        printf("DEBUG:///PC before jump: %d\n",PC);
+        EXMEM.PC = regfile.regs[IDEX.ins.rs];
+        controlUnit.Jump = 1; //this needs to be set as the below stages need this information
+        PC = EXMEM.PC; //this is what is causing the infinite loop
+        printf("DEBUG:///PC after jump: %d\n",regfile.regs[EXMEM.ins.rs]);
+        return;
+    }
+
 }
 
 void MemoryStage(){
 
     if(controlUnit.Jump) return;
+    if (EXMEM.nopFlag) return;
 
     //check for noop
     if (EXMEM.nopFlag) {

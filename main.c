@@ -97,7 +97,7 @@ int main() {
         #ifdef regsassign
         uint32_t i;
         for (i=0; i<32; i++) {
-            regfile.regs[i] = 2;
+            regfile.regs[i] = -2;
             printf("Reg %d: %d\n",i, regfile.regs[i]);
         }
         #endif // regsassign
@@ -118,8 +118,8 @@ int main() {
         printf("STARTING PC: %d\n",PC);
         FetchStage();
         DecodeStage();
-        if (IDEX.EOP_flag) break;
         ExecuteStage();
+        if (EXMEM.EOP_flag) break;
         MemoryStage();
         WritebackStage();
         printf("ENDING PC: %d\n",PC);
