@@ -69,7 +69,7 @@ void DecodeStage() {
     //3. Register numbers fed into register file.
     regfile.readreg1 = IFID.ins.rs;
     regfile.readreg2 = mux(IFID.ins.rt, IFID.ins.rd, controlUnit.RegDst);
-    //printf("decode stage: readreg1 = %d, readreg2 = %d\n",regfile.readreg1, regfile.readreg2);
+    printf("decode stage: readreg1 = %d, readreg2 = %d\n",regfile.readreg1, regfile.readreg2);
 
     //4. Register values read and stored into pipeline register
     regfile.regdata1 = regfile.regs[regfile.readreg1];
@@ -171,7 +171,7 @@ void ExecuteStage(){
 
     //1. Determine ALU inputs.
     alu.input1 = regfile.regs[IDEX.ins.rs]; //r1 is always element in register file with index curIns.rs
-    alu.input2 = mux(IDEX.regdata2, IDEX.ins.signextimm, controlUnit.ALUsrc); //ALU unit input mux
+    alu.input2 = mux(regfile.regs[IDEX.ins.rt], IDEX.ins.signextimm, controlUnit.ALUsrc); //ALU unit input mux
     printf("Alu inputs: %d, %d\n", alu.input1,alu.input2);
 
     //2. Actual ALU business
@@ -218,6 +218,7 @@ void ExecuteStage(){
         EXMEM.nopFlag = 1;
         if (EXMEM.ins.instruct == 0x00000008) {
             EXMEM.EOP_flag = -1; //ends program
+	    printf("Program completed like it was SUPPOSED to\n");
         }
         printf("DEBUG:///PC before jump: %d\n",PC);
         EXMEM.PC = regfile.regs[IDEX.ins.rs];
@@ -247,14 +248,14 @@ void MemoryStage(){
     }
 
     //1. skip this stage if no memory part is involved
-    if (controlUnit.MemRead == 0 && controlUnit.MemWrite == 0 && isLoadOrStore(MEMWB.ins.opcode)) {
+    if (controlUnit.MemRead == 0 && controlUnit.MemWrite == 0 && isLoadOrStore(EXMEM.ins.opcode)) {
             printf("ERROR: Memorystage is not detecting whether to involve mem or not properly.\n");
             exit(0);//TODO: remove this after it isn't necessary to debug
     }
 
     //2. load word format
     else if (controlUnit.MemRead == 1 && controlUnit.MemWrite == 0) {
-        if (isLoadOrStore(MEMWB.ins.opcode) == Loads) { //to double check
+        if (isLoadOrStore(EXMEM.ins.opcode) == Loads) { //to double check
             MEMWB.read_data = dataMem[EXMEM.write_addr>>2]; //load result into read_data output of mem
             MEMWB.write_reg = EXMEM.write_reg; //location to write to
             printf("DEBUG: ///memory location: %d, memory value: %d, register location: %d/n",EXMEM.write_addr,MEMWB.read_data,MEMWB.write_reg);
@@ -267,14 +268,14 @@ void MemoryStage(){
 
     //3. store word format
     else if (controlUnit.MemRead == 0 && controlUnit.MemWrite == 1) {
-        if (isLoadOrStore(MEMWB.ins.opcode) == stores) {
+        if (isLoadOrStore(EXMEM.ins.opcode) == stores) {
             //store();
             dataMem[EXMEM.ALUres>>2] = EXMEM.write_to_mem_val;
             //printf("DEBUG: //////Stored content in Reg number %d which was %d to memory location %d\n",EXMEM.write_to_mem_reg,EXMEM.write_to_mem_val, EXMEM.ALUres);
             printf("DEBUG: ////// dataMem[%d] = %d\n",EXMEM.ALUres,dataMem[EXMEM.ALUres>>2]);
         }
         else  {
-            printf("ERROR: Memorystage is not detecting whether to involve mem or not properly at #3.\n");
+            printf("ERROR: Memorystage is not detecting whether to involve mem or not properly at #3 Opcode = %d.\n", EXMEM.ins.opcode);
             return;
         }
     }

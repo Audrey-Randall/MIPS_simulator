@@ -112,7 +112,7 @@ int main() {
         #endif // manmem
 
          #ifdef program1
-        PC = 140;
+        PC = 130*4;
         regfile.regs[SP] = 3000;
         regfile.regs[FP] = 3000;
         #endif // program1
@@ -129,12 +129,15 @@ int main() {
         MemoryStage();
         WritebackStage();
         printf("ENDING PC: %d\n",PC);
-        if(PC > 40) break;
+        if(PC>>2 > 483){
+		printf("PC too high!");
+		break;
+	}
 
         //Cleanup
         //PC++;  //if it wasn't messed with elsewhere
         //memset(&curIns, 0, sizeof(curIns));
     }
-    printf("Program complete\n");
+    printf("Loop exited\n");
 
 }

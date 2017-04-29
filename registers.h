@@ -121,7 +121,7 @@ typedef struct Registerfile {
     uint8_t readreg1;
     uint8_t readreg2;
     uint8_t writereg; //register number to be written to
-    int8_t writeval; //value that needs to be written to register
+    int32_t writeval; //value that needs to be written to register
     int32_t regdata1;
     int32_t regdata2;
     //readdata1 can be referred to as regs[readreg1] and same for others.
