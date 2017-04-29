@@ -5,13 +5,13 @@
 void FetchStage(){
 
     //branch control logic
-    if (controlUnit.WasBranch && !controlUnit.ShouldExec) {
-        controlUnit.ShouldExec = 1;
+    if (WasBranch && !ShouldExec) {
+        ShouldExec = 1;
     }
 
-    else if (controlUnit.WasBranch && controlUnit.ShouldExec) {
-        controlUnit.WasBranch = 0;
-        controlUnit.ShouldExec = 0;
+    else if (WasBranch && ShouldExec) {
+        WasBranch = 0;
+        ShouldExec = 0;
     }
 
     //1. Instruction is read from memory using the address in the PC
@@ -123,7 +123,9 @@ void DecodeStage() {
     }
 
     //branch logic
-    if (controlUnit.Branch || controlUnit.WasBranch) {
+    if (controlUnit.Branch) {
+        WasBranch = 1;
+        ShouldExec = 0;
         printf("BRAAAAAAAAAANCH\n");
         IDEX.nopFlag = 1;
         printf("IDEX.ins.opcode: %d\n",IDEX.ins.opcode);

@@ -12,6 +12,8 @@ void init(){
   memset(&MEMWB, 0, sizeof(MEMWB));
   memset(memory, 0, MEMSIZE);
   regfile.regs[ZERO] = 0;
+  WasBranch = 0;
+  ShouldExec = 1;
   PC = 0;
 }
 
@@ -189,7 +191,6 @@ int32_t ALUfunct(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
             alu.ALUres = v1 ^ v2;
             break;
         case 0b001011: //movn
-
             //is v2 not equal to 0? if it is, store v2'd value in rd
             //if v2 = 0, store rt's value back into rd
             alu.ALUres = (v2 != 0) ? v2 : v1;

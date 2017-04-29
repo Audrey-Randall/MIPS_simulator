@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O3
+CFLAGS=-O3 -g
 local_CFLAGS=-O3
 DEPS= cpuSim.h control.h registers.h
 
@@ -17,11 +17,11 @@ DEPS= cpuSim.h control.h registers.h
 all: executable
 
 %.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(local_CFLAGS)
+	$(CC) -c -o $@ $< $(CFLAGS)
 
 executable: main.o cpuSim.o control.o stages.o
 	$(CC) -o cpuSim $^
 
 clean:
-	local_CFLAGS=$(filter-out -DDEBUG,$(CFLAGS))
+	#local_CFLAGS=$(filter-out -DDEBUG,$(CFLAGS))
 	rm *.exe *.o

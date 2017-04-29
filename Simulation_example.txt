@@ -1,17 +1,1 @@
-0x03e00008,   // 	jr	ra
-0x2116022,34693154 //sub $t4, $s0, $s1 - Opcode = 0, rd = 12, rs = 16, rt = 17, shamt = 0, funct = 34 //R-format
-0x08000002, //j example
-0x8C0C0,573632 //sll $t8, $t0, 3 - Opcode = 0, rd = 24, rs = 0, rt = 8, shamt = 3, funct = 0 //R-format
-0x2088ff9c,545783964 //addi $t0, $a0, -100, Opcode = 8, rs = 4, rt = 8, immediate -100 //I-format (shamt = 0, funct = 0, rd=0)
-0x026c4020,40648736 //add $t0, $s3, $t4 Opcode = 0, rd = 8, rs = 19, rt = 12, shamt = 0, funct = 32 //R-format
-,0x3482a5a5,880977317 //ori $v0, $a0, -23131_ Opcode = 13, rs = 4, rt = 2, imm = -23131
-0x2a282710,707274512 //_slti $t0, $s1, 10000___ Opcode = 10, rs = 17, rt = 8, imm = 10000
-0xafbf0010,2948530192 //sw $ra, 16($sp), Opcode = 43, rs = 29, rt = 31, imm = 16 //I-format (shamt = 0, funct = 0, rd = 0)
-0x18c00008,   // 	blez	a2,400854 <copy_array+0x24> 
-0x8c430000,   // 	lw	v1,0(v0) v1 = 3, v0 = 2
-0x00000000,
-0x0c00001e,   // 	jal	30 <bubble_sort>
-0x00000008,   // 	jr	to PC = 0, indicating end of program
-0x00000000,
-0x2116022,
-0x2116022,
+0x00001025,   // 	jr	ra
