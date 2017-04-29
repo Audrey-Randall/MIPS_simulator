@@ -56,7 +56,6 @@ int setCurIns(uint32_t ci){
     IFID.ins.shamt = (ci & 0x000007C0)>>6;
     IFID.ins.funct = (ci & 0x0000003F);
     IFID.ins.imm = 0; //rtypes don't have imm
-    InstructionType = Rtype;
   } else if (opcode==0x2 || opcode==0x3){
     //printf("J instruc\n");
     IFID.ins.addr = (ci & 0x03FFFFFF);
@@ -66,7 +65,6 @@ int setCurIns(uint32_t ci){
     IFID.ins.shamt = 0;
     IFID.ins.funct = 0;
     IFID.ins.imm = 0; //rtypes don't have imm
-    InstructionType = Jtype;
   } else {
     //printf("I instruc\n");
     IFID.ins.rs = (ci & 0x03E00000)>>21;
@@ -75,11 +73,10 @@ int setCurIns(uint32_t ci){
     IFID.ins.rd = 0; //itypes don't have rd
     IFID.ins.shamt = 0; //itypes don't have shamt
     IFID.ins.funct = 0; //itypes don't have funct
-    InstructionType = Itype;
   }
 
 //  printf("\nopcode: %d\nrd: %d\nrs: %d\nrt: %d\nshamt: %d\nfunct: %d\nimmed: %d\n",IFID.ins.opcode,IFID.ins.rd,IFID.ins.rs,IFID.ins.rt,IFID.ins.shamt,IFID.ins.funct,IFID.ins.imm);
-  printf("\nopcode: %d, rd: %d, rs: %d, rt: %d, shamt: %d, funct: %d, immed: %d\n",IFID.ins.opcode,IFID.ins.rd,IFID.ins.rs,IFID.ins.rt,IFID.ins.shamt,IFID.ins.funct,IFID.ins.imm);
+  //printf("\nopcode: %d, rd: %d, rs: %d, rt: %d, shamt: %d, funct: %d, immed: %d\n",IFID.ins.opcode,IFID.ins.rd,IFID.ins.rs,IFID.ins.rt,IFID.ins.shamt,IFID.ins.funct,IFID.ins.imm);
 
   return 0;
 }
@@ -362,9 +359,9 @@ void c_loadd(){
 }
 
 void store(){
-  dataMem[EXMEM.ALUres] = EXMEM.write_data;
+  dataMem[EXMEM.ALUres>>2] = EXMEM.write_data;
 }
 
 int32_t load() {
-  return dataMem[EXMEM.ALUres];
+  return dataMem[EXMEM.ALUres>>2];
 }

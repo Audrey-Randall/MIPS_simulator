@@ -4,8 +4,10 @@
 #include <stdint.h>
 
 uint32_t ci;
+void printCurrentInstruction();
+void printControls();
+int isLoadOrStore(uint16_t oc);
 void FetchStage();
-//void DecodeStage(uint32_t EOP);
 void DecodeStage();
 void ExecuteStage();
 void MemoryStage();

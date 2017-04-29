@@ -144,8 +144,8 @@ int setControls(uint16_t opcode){
       printf("BEQ-format\n");
 
       //branch control logic
-      controlUnit.WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
-      controlUnit.ShouldExec = 0 ;
+      WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
+      ShouldExec = 0 ;
       type = branches;
     }
     else if (opcode == OPCODE_BGTZ) {
@@ -160,8 +160,8 @@ int setControls(uint16_t opcode){
       controlUnit.Jump = 0;
       printf("BEQ-format\n");
             //branch control logic
-      controlUnit.WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
-      controlUnit.ShouldExec = 0 ;
+      WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
+      ShouldExec = 0 ;
 
 
       type = branches;
@@ -178,8 +178,8 @@ int setControls(uint16_t opcode){
       controlUnit.Jump = 0;
       printf("BEQ-format\n");
             //branch control logic
-      controlUnit.WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
-      controlUnit.ShouldExec = 0 ;
+      WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
+      ShouldExec = 0 ;
 
       type = branches;
     }
@@ -208,8 +208,8 @@ int setControls(uint16_t opcode){
       controlUnit.Jump = 0;
       printf("BEQ-format\n");
             //branch control logic
-      controlUnit.WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
-      controlUnit.ShouldExec = 0 ;
+      WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
+      ShouldExec = 0 ;
 
       type = branches;
     }

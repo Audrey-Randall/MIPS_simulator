@@ -120,7 +120,7 @@ int main() {
 
         uint32_t endofprog = 0;
     while(PC != 0) {
-        printf("\nmemory[%d]: 0x%08X-------------------------------------------------\n",PC, memory[PC]);
+        printf("\n\n\nmemory[%d]: 0x%08X-------------------------------------------------\n",PC>>2, memory[PC>>2]);
         //for (i=0;i<5;i++) {
         //printf("Reg %d: %d\n",i, regfile.regs[i]);
         //}
