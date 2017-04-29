@@ -13,6 +13,7 @@
  #define regsassign
  #define manmem
 
+ #define program1
 
 #ifdef commandline
 int main(int argc, char** argv) {
@@ -39,7 +40,8 @@ int main() {
 
 
     //Read program file into memory
-    progLen = parseInput("Simulation_example.txt");
+    //progLen = parseInput("Simulation_example.txt");
+    progLen = parseInput("Program1File.txt");
 
 #endif // codeblocks
     //Execute program
@@ -108,6 +110,13 @@ int main() {
             //printf("MEM %d: %d\n",i, regfile.regs[i]);
         }
         #endif // manmem
+
+         #ifdef program1
+        PC = 140;
+        regfile.regs[SP] = 3000;
+        regfile.regs[FP] = 3000;
+        #endif // program1
+
 
         uint32_t endofprog = 0;
     while(PC < progLen) {

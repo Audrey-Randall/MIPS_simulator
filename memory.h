@@ -1,7 +1,8 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#define MEMSIZE 4096
+//#define MEMSIZE 4096
+#define MEMSIZE 1200
 
 //Three block sizes: 1, 4, 16
 #define BLOCKSIZE 16
