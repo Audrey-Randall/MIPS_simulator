@@ -94,7 +94,7 @@ void BranchUnit (uint32_t zerosig, uint32_t signeximm) {
     printf("zerosignal: %d, controlUnit.branch: %d\n",zerosig,controlUnit.Branch);
     printf("Branch!!!!!\n");
     printf("Old PC: %d\n",PC);
-    uint32_t input1 = PC + signeximm; //result of the alu
+    uint32_t input1 = PC + signeximm<<2; //result of the alu
     uint32_t input0 = PC; //these are the incremented versions of PC, different than the actual PC we are on.
     printf("signeximm: %d, input0: %d, input1: %d\n",signeximm,input0,input1);
     uint32_t s = controlUnit.Branch & zerosig;
