@@ -2,7 +2,8 @@
 #include "cpuSim.h"
 #include "control.h"
 
-void FetchStage(){
+void FetchStage(uint32_t PC){
+  IFID.PC = PC;
   setCurIns();
 }
 

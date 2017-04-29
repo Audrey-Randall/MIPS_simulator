@@ -33,6 +33,11 @@ typedef struct WriteBuffer {
   int32_t memAddr; //Address of the start of the block in memory
 }WriteBuffer;
 
+typedef struct Ticker{
+  int stage; //between 0 and 4
+  int PC; //instruction I'm working on
+}Ticker;
+
 //Data is stored as 32-bit integers. If you need to address in to a byte, you need a mask.
 typedef struct Block {
   int32_t data[BLOCKSIZE];

@@ -281,6 +281,164 @@ void testAddr(){
   printf("Tag: %x\nBlock: %x\nWord: %x \nByte: %d \nStart_mem_block: %d\n", *tag, *block, *word, *byte, *start_mem_block);
 }
 
+incrementTickers(Ticker* ticker1, Ticker* ticker2, Ticker* ticker3, Ticker* ticker4, Ticker* ticker5) {
+  if(ticker1->stage + 1 > 4) {
+    ticker1->stage = 0;
+    ticker1->instruc+=5;
+  }
+  else ticker1->stage++;
+  if(ticker2->stage + 1 > 4) {
+    ticker2->stage = 0;
+    ticker2->instruc+=5;
+  }
+  else ticker2->stage++;
+  if(ticker3->stage + 1 > 4) {
+    ticker3->stage = 0;
+    ticker3->instruc+=5;
+  }
+  else ticker3->stage++;
+  if(ticker4->stage + 1 > 4) {
+    ticker4->stage = 0;
+    ticker4->instruc+=5;
+  }
+  else ticker4->stage++;
+  if(ticker5->stage + 1 > 4) {
+    ticker5->stage = 0;
+    ticker5->instruc+=5;
+  }
+  else ticker5->stage++;
+}
+
+void FetchStage(uint32_t instruc){
+  printf("fetch instruction %d\n", instruc);
+}
+
+void DecodeStage(){
+  printf("decode\n");
+}
+
+void ExecuteStage(){
+  printf("execute\n");
+}
+
+void MemoryStage(){
+  printf("memory\n");
+}
+
+void WritebackStage(){
+  printf("writeback\n");
+}
+
+void tick(){
+  //Every stage needs to move to the next stage
+  //If you're at stage 5, go to stage 1 and increment the instruc you're working with by 5 for 5-stage pipeline
+  //{stage, instruc}
+  Ticker ticker1;
+  ticker1.stage = 0;
+  ticker1.instruc = 0;
+  Ticker ticker2;
+  ticker2.stage = 0;
+  ticker2.instruc = 1;
+  Ticker ticker3;
+  ticker3.stage = 0;
+  ticker3.instruc = 2;
+  Ticker ticker4;
+  ticker4.stage = 0;
+  ticker4.instruc = 3;
+  Ticker ticker5;
+  ticker5.stage = 0;
+  ticker5.instruc = 4;
+
+  int cycle = 0;
+
+  //First instruction
+  FetchStage(ticker1.instruc);
+  ticker1.stage++;
+  cycle++;
+  printf("\n\n");
+
+  //Second instruction
+  DecodeStage(); //ticker1's timeline
+  FetchStage(ticker2.instruc);
+  ticker1.stage++;
+  ticker2.stage++;
+  cycle++;
+  printf("\n\n");
+
+  //Third instruction
+  ExecuteStage();
+  DecodeStage(); //ticker1's timeline
+  FetchStage(ticker3.instruc);
+  ticker1.stage++;
+  ticker2.stage++;
+  ticker3.stage++;
+  cycle++;
+  printf("\n\n");
+
+  //Fourth instruction
+  MemoryStage();
+  ExecuteStage();
+  DecodeStage(); //ticker1's timeline
+  FetchStage(ticker4.instruc);
+  ticker1.stage++;
+  ticker2.stage++;
+  ticker3.stage++;
+  ticker4.stage++;
+  cycle++;
+  printf("\n\n");
+
+  //The rest of the instructions TODO: change 10 to 0
+  while(ticker1.instruc != 10 && ticker2.instruc != 10 && ticker3.instruc != 10 && ticker4.instruc != 10 && ticker5.instruc != 10) {
+    //We can tell, by the position of ticker1, what combo of stages we're executing
+    //checkForBranches(); //Update ticker positions if a branch has occured
+    printf("cycle = %d\n", cycle);
+    switch(ticker1.stage) {
+      case 0:
+        FetchStage(ticker1.instruc);
+        WritebackStage();
+        MemoryStage();
+        ExecuteStage();
+        DecodeStage();
+        incrementTickers(&ticker1, &ticker2, &ticker3, &ticker4, &ticker5);
+        break;
+      case 1:
+        DecodeStage();
+        FetchStage(ticker2.instruc);
+        WritebackStage();
+        MemoryStage();
+        ExecuteStage();
+        incrementTickers(&ticker1, &ticker2, &ticker3, &ticker4, &ticker5);
+        break;
+      case 2:
+        ExecuteStage(); //ticker1
+        DecodeStage(); //ticker2
+        FetchStage(ticker3.instruc); //ticker3
+        WritebackStage(); //ticker4
+        MemoryStage(); //ticker5
+        incrementTickers(&ticker1, &ticker2, &ticker3, &ticker4, &ticker5);
+        break;
+      case 3:
+        MemoryStage(); //ticker1
+        ExecuteStage(); //ticker2
+        DecodeStage(); //ticker3
+        FetchStage(ticker4.instruc); //ticker4
+        WritebackStage(); //ticker5
+        incrementTickers(&ticker1, &ticker2, &ticker3, &ticker4, &ticker5);
+        break;
+      case 4:
+        WritebackStage();
+        MemoryStage();
+        ExecuteStage();
+        DecodeStage();
+        FetchStage(ticker5.instruc);
+        incrementTickers(&ticker1, &ticker2, &ticker3, &ticker4, &ticker5);
+        break;
+    }
+    printf("\n\n");
+    cycle++;
+  }
+}
+
 int main(int argc, char** argv) {
   /*
   Tests 0-2:
@@ -312,7 +470,8 @@ int main(int argc, char** argv) {
 
   //Perform tests
   //testAddr(); //test 0
-  testRW(); //test 1, 2
+  //testRW(); //test 1, 2
+  tick();
 
   return 0;
 }
