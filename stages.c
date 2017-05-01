@@ -6,9 +6,9 @@ void printCurrentInstruction(){
   if(IFID.ins.opcode==0x0){
     printf("R instruction. Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
   } else if(IFID.ins.opcode==0x2 || IFID.ins.opcode==0x3) {
-    printf("J instruction opcode %d. Addr = %d\n", IFID.ins.opcode, IFID.ins.addr);
+    printf("J instruction opcode 0x%08X. Addr = %d\n", IFID.ins.opcode, IFID.ins.addr);
   } else {
-    printf("I instruction opcode %d. Rs = %d, Rt = %d, Imm = %d\n", IFID.ins.opcode, IFID.ins.rs, IFID.ins.rt, IFID.ins.imm);
+    printf("I instruction opcode 0x%08X. Rs = %d, Rt = %d, Imm = %d\n", IFID.ins.opcode, IFID.ins.rs, IFID.ins.rt, IFID.ins.imm);
   }
 }
 
@@ -119,6 +119,8 @@ void DecodeStage() {
             uint32_t finaladdress = (temp1 | temp2);
             printf("temp1: %08X, temp2: %08X, finaladd: %08X\n",temp1,temp2, finaladdress);
             regfile.regs[RA] = PC;//should be instruction after current one but we increment PC in fetch
+            printf("Stored %d (PC) to reg %d\n",PC,RA);
+            //note that we need to add a branch delay slot after this.
             PC = finaladdress;
             IDEX.nopFlag = 1;
             printf("ENDING PC: %d\n",PC);
@@ -144,7 +146,7 @@ void DecodeStage() {
             BranchUnit(zero,signext);
         }
         else if (IDEX.ins.opcode == OPCODE_BLEZ) {
-            printf("BLEZ:v1: %d\n",v1);
+            printf("BLEZ: v1: %d\n",v1);
             zero = (v1 <= 0) ? 1: 0;
             BranchUnit(zero,signext);
         }

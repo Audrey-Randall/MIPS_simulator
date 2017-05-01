@@ -91,8 +91,7 @@ void BranchUnit (uint32_t zerosig, uint32_t signeximm) {
 
 //subtract the two inputs -> done outside of this function
 //uint32_t output = controlUnit.Branch & sub
-    printf("zerosignal: %d, controlUnit.branch: %d\n",zerosig,controlUnit.Branch);
-    printf("Branch!!!!!\n");
+    printf("Signals into branchunit: zerosignal: %d, controlUnit.branch: %d\n",zerosig,controlUnit.Branch);
     printf("Old PC: %d\n",PC);
     uint32_t input1 = PC + (signeximm<<2); //result of the alu
     uint32_t input0 = PC; //these are the incremented versions of PC, different than the actual PC we are on.
@@ -102,7 +101,7 @@ void BranchUnit (uint32_t zerosig, uint32_t signeximm) {
     //if v1 != v2, 1 & 0 = 0, we chose just PC + 4.
     PC = mux(input0, input1, s); //ALU unit input mux
     //PC = IDEX.PC;
-    printf("New PC: %d\n",PC);
+    printf("PC output of BranchUnit: %d\n",PC);
 
 }
 
@@ -175,10 +174,12 @@ int32_t ALUfunct(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
             break;
         case 0x00: //sll
             alu.ALUres = v2 << IDEX.ins.shamt;
+            printf("shift by: %d\n",IDEX.ins.shamt);
             if(IDEX.ins.shamt == 0) EXMEM.nopFlag = 1;
             break;
         case 0x02: //srl
-            alu.ALUres = v1 >> IDEX.ins.shamt;
+            alu.ALUres = v2 >> IDEX.ins.shamt;
+            printf("shift by: %d\n",IDEX.ins.shamt);
             break;
         case 0x23: //subu TODO: am I casting correctly?
             //VANIKA - fix later.
