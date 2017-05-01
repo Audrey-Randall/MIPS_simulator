@@ -112,7 +112,7 @@ int main() {
         #endif // manmem
 
          #ifdef program1
-        PC = 130*4;
+        PC = 140*4;
         regfile.regs[SP] = 3000;
         regfile.regs[FP] = 3000;
         #endif // program1

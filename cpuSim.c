@@ -174,7 +174,7 @@ int32_t ALUfunct(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
             alu.ALUres = v1 < v2 ? 1 : 0;
             break;
         case 0x00: //sll
-            alu.ALUres = v1 << IDEX.ins.shamt;
+            alu.ALUres = v2 << IDEX.ins.shamt;
             if(IDEX.ins.shamt == 0) EXMEM.nopFlag = 1;
             break;
         case 0x02: //srl
