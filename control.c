@@ -143,9 +143,6 @@ int setControls(uint16_t opcode){
       controlUnit.Jump = 0;
       //printf("BEQ-format\n");
 
-      //branch control logic
-      WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
-      ShouldExec = 0 ;
       type = branches;
     }
     else if (opcode == OPCODE_BGTZ) {
@@ -159,11 +156,6 @@ int setControls(uint16_t opcode){
       controlUnit.ALUop = 0b01;
       controlUnit.Jump = 0;
       //printf("BEQ-format\n");
-            //branch control logic
-      WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
-      ShouldExec = 0 ;
-
-
       type = branches;
     }
     else if (opcode == OPCODE_BLEZ) {
@@ -177,10 +169,6 @@ int setControls(uint16_t opcode){
       controlUnit.ALUop = 0b01;
       controlUnit.Jump = 0;
       //printf("BEQ-format\n");
-            //branch control logic
-      WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
-      ShouldExec = 0 ;
-
       type = branches;
     }
     else if (opcode == OPCODE_BNE) {
@@ -207,9 +195,6 @@ int setControls(uint16_t opcode){
       controlUnit.ALUop = 0b01;
       controlUnit.Jump = 0;
       //printf("BEQ-format\n");
-            //branch control logic
-      WasBranch = 1; //to denote that a branch has occurred within last 2 instructions (forwarding)
-      ShouldExec = 0 ;
 
       type = branches;
     }

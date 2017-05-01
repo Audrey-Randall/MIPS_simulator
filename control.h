@@ -59,8 +59,8 @@
 
 
 uint8_t type;
-int WasBranch;
-int ShouldExec;
+int BranchAddr;
+int amTagalong;
 
 typedef enum I_Tracker {Rtype = 0, Itype = 1, Jtype = 2} Instruction_Tracker;
 

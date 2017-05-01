@@ -14,21 +14,22 @@ void printCurrentInstruction(){
 
 void FetchStage(){
     //branch control logic
-    if (WasBranch && !ShouldExec) {
-      ShouldExec = 1;
-    } else if (WasBranch && ShouldExec) {
-        WasBranch = 0;
-        ShouldExec = 0;
+    if (BranchAddr && amTagalong) {
+      amTagalong = 0;
+    } else if (BranchAddr && !amTagalong) {
+	//I'm the intruction after the tagalong: set the PC to BranchAddr
+        PC = BranchAddr;
+	BranchAddr = 0;
     }
     //1. Instruction is read from memory using the address in the PC
     ci = memory[PC>>2];  //current instruction
     //2. Instruction itself is stored into IFID register.
     IFID.ins.instruct = ci;
     //3. PC incremented, stored to pipeline, for need in things like branch instruction
+    printf("\n\n\nmemory[%d]: 0x%08X-------------------------------------------------\n",PC>>2, memory[PC>>2]);
     PC+=4;
     IFID.PC = PC;
-
-    printf("FETCH: \n\tInstruction = 0x%8x\n\tPC = %d\n", ci, IFID.PC-4);
+    printf("FETCH: \n\tInstruction = 0x%x\n\tPC = %d\n", ci, IFID.PC-4);
 }
 
 void printControls(){
@@ -101,15 +102,17 @@ void DecodeStage() {
 
     //9. Jump / Branches
     if (controlUnit.Jump) {
+	amTagalong = 1;
         if (IDEX.ins.opcode == 0x2) {
             printf("JMP: IFID.ins.addr before editing: %08X\n",IFID.ins.addr);
             uint32_t ms4 = (uint32_t)(IFID.ins.addr & 0xf0000000); //select MS four bits
             uint32_t abbrevAddr = (IFID.ins.addr & 0x03ffffff) << 2;
             uint32_t finaladdress = (ms4 | abbrevAddr);
             printf("ms4: %08X, abbrevAddr: %08X, finaladd: %08X\n", ms4, abbrevAddr, finaladdress);
-            PC = finaladdress; //jump to this address
-            IDEX.nopFlag = 1; //so we skip over all the next stages
-            printf("ENDING PC: %d\n", PC);
+            BranchAddr = finaladdress; //jump to this address
+	    amTagalong = 1;
+	    IDEX.nopFlag = 1;
+            printf("ENDING PC: %d and addr to jump to next time: 0x%x\n", PC, BranchAddr);
 
         }
         else if (IDEX.ins.opcode = 0x3) {
@@ -121,17 +124,16 @@ void DecodeStage() {
             regfile.regs[RA] = PC;//should be instruction after current one but we increment PC in fetch
             printf("Stored %d (PC) to reg %d\n",PC,RA);
             //note that we need to add a branch delay slot after this.
-            PC = finaladdress;
-            IDEX.nopFlag = 1;
-            printf("ENDING PC: %d\n",PC);
+            BranchAddr = finaladdress; //jump to this address
+	    amTagalong = 1;
+	    IDEX.nopFlag = 1;
+            printf("ENDING PC: %d and addr to jump to next time: 0x%x\n", PC, BranchAddr);
         }
         return;
     }
 
     //branch logic
     if (controlUnit.Branch) {
-        WasBranch = 1;
-        ShouldExec = 0;
         printf("BRAAAAAAAAAANCH\n");
         IDEX.nopFlag = 1;
         printf("IDEX.ins.opcode: %d\n",IDEX.ins.opcode);
@@ -218,15 +220,15 @@ void ExecuteStage(){
     //8. jr
     if(EXMEM.ins.funct == 0x8) {
         EXMEM.nopFlag = 1;
+	amTagalong = 1;
         if (EXMEM.ins.instruct == 0x00000008) {
             EXMEM.EOP_flag = -1; //ends program
 	    printf("Program completed like it was SUPPOSED to\n");
         }
         printf("DEBUG:///PC before jump: %d\n",PC);
-        EXMEM.PC = regfile.regs[IDEX.ins.rs];
+        BranchAddr = regfile.regs[IDEX.ins.rs];
         controlUnit.Jump = 1; //this needs to be set as the below stages need this information
-        PC = EXMEM.PC;
-        printf("DEBUG:///PC after jump: %d\n",regfile.regs[EXMEM.ins.rs]);
+        printf("DEBUG:///PC after jump: %d and branchaddr %d\n",regfile.regs[EXMEM.ins.rs], BranchAddr);
         return;
     }
 

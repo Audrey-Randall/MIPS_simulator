@@ -12,8 +12,8 @@ void init(){
   memset(&MEMWB, 0, sizeof(MEMWB));
   memset(memory, 0, MEMSIZE);
   memset(&regfile, 0, sizeof(regfile));
-  WasBranch = 0;
-  ShouldExec = 1;
+  BranchAddr = 0; //will be 0 in D, E, M, W unless the previous instruction was a branch. In F, will be 0 unless prev instruc was branch or intruc before that was branch
+  amTagalong = 0; //I am the tagalong instruc that needs to be executed after a branch
   PC = 0;
 }
 
@@ -99,9 +99,16 @@ void BranchUnit (uint32_t zerosig, uint32_t signeximm) {
     uint32_t s = controlUnit.Branch & zerosig;
     //if v1 == v2, 1 & 1 = 1, we choose the branched address
     //if v1 != v2, 1 & 0 = 0, we chose just PC + 4.
-    PC = mux(input0, input1, s); //ALU unit input mux
+    BranchAddr = mux(input0, input1, s); //ALU unit input mux
+    if(BranchAddr==PC) { 
+        //shouldn't branch
+	BranchAddr = 0;
+	amTagalong = 0;
+    } else {
+        amTagalong = 1;
+    }
     //PC = IDEX.PC;
-    printf("PC output of BranchUnit: %d\n",PC);
+    printf("BranchAddr output of BranchUnit: %x and PC: %d\n",BranchAddr, PC);
 
 }
 
@@ -189,12 +196,12 @@ int32_t ALUfunct(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
             alu.ALUres = v1 ^ v2;
             break;
         case 0b001011: //movn
-            //is v2 not equal to 0? if it is, store v2'd value in rd
+            //is v2 not equal to 0? if it is, store v1'd value in rd
             //if v2 = 0, store rt's value back into rd
-            alu.ALUres = (v2 != 0) ? v2 : v1;
+            alu.ALUres = (v2 != 0) ? v1 : regfile.regs[IDEX.ins.rd];
             break;
         case 0b001010: //movz
-            alu.ALUres = (v2 == 0) ? v2 : v1; // if rt == 0 store rd's value in rs.
+            alu.ALUres = (v2 == 0) ? v1 : regfile.regs[IDEX.ins.rd]; // if rt == 0 store rs's value in rd.
             //else just store the current rd value back in rd.
             break;
         case 0b001000:

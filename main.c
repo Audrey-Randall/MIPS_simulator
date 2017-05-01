@@ -120,7 +120,6 @@ int main() {
 
         uint32_t endofprog = 0;
     while(PC != 0) {
-        printf("\n\n\nmemory[%d]: 0x%08X-------------------------------------------------\n",PC>>2, memory[PC>>2]);
         memset((void*)&controlUnit, 0, sizeof(controlUnit));
         FetchStage();
         DecodeStage();
