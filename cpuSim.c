@@ -100,7 +100,7 @@ void BranchUnit (uint32_t zerosig, uint32_t signeximm) {
     //if v1 == v2, 1 & 1 = 1, we choose the branched address
     //if v1 != v2, 1 & 0 = 0, we chose just PC + 4.
     BranchAddr = mux(input0, input1, s); //ALU unit input mux
-    if(BranchAddr==PC) { 
+    if(BranchAddr==PC) {
         //shouldn't branch
 	BranchAddr = 0;
 	amTagalong = 0;
@@ -367,9 +367,9 @@ void c_loadd(){
 }
 
 void store(){
-  dataMem[EXMEM.ALUres>>2] = EXMEM.write_data;
+  memory[EXMEM.ALUres>>2] = EXMEM.write_data;
 }
 
 int32_t load() {
-  return dataMem[EXMEM.ALUres>>2];
+  return memory[EXMEM.ALUres>>2];
 }

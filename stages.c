@@ -3,14 +3,73 @@
 #include "control.h"
 
 void printCurrentInstruction(){
-  if(IFID.ins.opcode==0x0){
-    printf("R instruction. Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
-  } else if(IFID.ins.opcode==0x2 || IFID.ins.opcode==0x3) {
-    printf("J instruction opcode 0x%08X. Addr = %d\n", IFID.ins.opcode, IFID.ins.addr);
-  } else {
-    printf("I instruction opcode 0x%08X. Rs = %d, Rt = %d, Imm = %d\n", IFID.ins.opcode, IFID.ins.rs, IFID.ins.rt, IFID.ins.imm);
+  if(IFID.ins.opcode==OPCODE_R){
+        printf("\t");
+        printf("R format: ins rd, rs, rt\n");
+        if (IFID.ins.funct == 0x20) printf("ADD Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x21) printf("ADDU Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x24) printf("AND Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x8) printf("JR Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x27) printf("NOR Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x25) printf("OR Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x0b001011) printf("MOVN Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x0b001010) printf("MOVZ Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x2a) printf("SLT Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x2b) printf("SLTU Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x0) printf("SLL Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x2) printf("SLR Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x22) printf("SUB Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0x23) printf("SUBU Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        if (IFID.ins.funct == 0b100110) printf("XOR Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
+        printf("R instruction. Rs = %d, Rt = %d, Rd = %d, funct = 0x%x.\n", IFID.ins.rs, IFID.ins.rt, IFID.ins.rd, IFID.ins.funct);
   }
-}
+
+  else if(IFID.ins.opcode==OPCODE_J) {
+    printf("\t");
+    printf("J format: J index\n");
+    printf("J instruction opcode 0x%08X. Addr = %d\n", IFID.ins.opcode, IFID.ins.addr);
+  }
+
+    else if(IFID.ins.opcode==OPCODE_JAL) {
+    printf("\t");
+    printf("JAL format: JAL index\n");
+    printf("J instruction opcode 0x%08X. Addr = %d\n", IFID.ins.opcode, IFID.ins.addr);
+
+  }
+      //basic I format
+      else if (IFID.ins.opcode == OPCODE_ADDI) printf("I format: ADDI rt, rs, imm\n");
+      else if (IFID.ins.opcode == OPCODE_ADDUI) printf("I format: ADDUI rt, rs, imm\n");
+      else if (IFID.ins.opcode == OPCODE_ANDI) printf("I format: ANDI rt, rs, imm\n");
+      else if (IFID.ins.opcode == OPCODE_XORI) printf("I format: XORI rt, rs, imm\n");
+      else if (IFID.ins.opcode == OPCODE_ORI) printf("I format: ORI rt, rs, imm\n");
+      else if (IFID.ins.opcode == OPCODE_SLTI) printf("I format: SLTI rt, rs, imm\n");
+      else if (IFID.ins.opcode == OPCODE_SLTUI) printf("I format: SLTUI rt, rs, imm\n");
+
+      //branches
+      else if (IFID.ins.opcode == OPCODE_BEQ) printf("BRANCH format: BEQ rs, rt, offset. if rs __ rt then offset");
+      else if (IFID.ins.opcode == OPCODE_BNE) printf("BRANCH format: BNE rs, rt, offset. if rs __ rt then offset");
+      else if (IFID.ins.opcode == OPCODE_BGTZ) printf("BRANCH format: BGTZ rs, rt, offset. if rs __ rt then offset");
+      else if (IFID.ins.opcode == OPCODE_BLTZ) printf("BRANCH format: BLTZ rs, rt, offset. if rs __ rt then offset");
+      else if (IFID.ins.opcode == OPCODE_BLEZ) printf("BRANCH format: BLEZ rs, rt, offset. if rs __ rt then offset");
+
+      //load words
+      else if (IFID.ins.opcode == OPCODE_LB) printf("LW format: LB rt, offset(rs). rt = mem[rs.content + offset]");
+      else if (IFID.ins.opcode == OPCODE_LBU) printf("LW format: LBU rt, offset(rs). rt = mem[rs.content + offset]");
+      else if (IFID.ins.opcode == OPCODE_LHU) printf("LW format: LHU rt, offset(rs). rt = mem[rs.content + offset]");
+      else if (IFID.ins.opcode == OPCODE_LUI) printf("LW format: LUI rt, offset(rs). rt = mem[rs.content + offset]");
+      else if (IFID.ins.opcode == OPCODE_LW) printf("LW format: LW rt, offset(rs). rt = mem[rs.content + offset]");
+        //printf("\t")
+
+        //store words
+      else if (IFID.ins.opcode == OPCODE_SB) printf("SW format: SB rt, offset(rs). mem[rs.content + offset] = rt.content");
+      else if (IFID.ins.opcode == OPCODE_SH) printf("SW format: SH rt, offset(rs). mem[rs.content + offset] = rt.content");
+      else if (IFID.ins.opcode == OPCODE_SW) printf("SW format: SW rt, offset(rs). mem[rs.content + offset] = rt.content");
+
+      else printf("ERROR WITH PRINT STATEMENTS.\n");
+  printf("\t");
+  printf("I instruction opcode 0x%08X. Rs = %d, Rt = %d, Imm = %d\n", IFID.ins.opcode, IFID.ins.rs, IFID.ins.rt, IFID.ins.imm);
+
+  }
 
 void FetchStage(){
     //branch control logic
@@ -26,7 +85,7 @@ void FetchStage(){
     //2. Instruction itself is stored into IFID register.
     IFID.ins.instruct = ci;
     //3. PC incremented, stored to pipeline, for need in things like branch instruction
-    printf("\n\n\nmemory[%d]: 0x%08X-------------------------------------------------\n",PC>>2, memory[PC>>2]);
+    printf("\n\n\nmemory[%d]: 0x%08X-------------------------------------------------\n",(PC>>2)+1, memory[PC>>2]);
     PC+=4;
     IFID.PC = PC;
     printf("FETCH: \n\tInstruction = 0x%x\n\tPC = %d\n", ci, IFID.PC-4);
@@ -260,7 +319,7 @@ void MemoryStage(){
     //2. load word format
     else if (controlUnit.MemRead == 1 && controlUnit.MemWrite == 0) {
         if (isLoadOrStore(EXMEM.ins.opcode) == Loads) { //to double check
-            MEMWB.read_data = dataMem[EXMEM.write_addr>>2]; //load result into read_data output of mem
+            MEMWB.read_data = memory[EXMEM.write_addr>>2]; //load result into read_data output of mem
             MEMWB.write_reg = EXMEM.write_reg; //location to write to
             printf("DEBUG: ///memory location: %d, memory value: %d, register location: %d/n",EXMEM.write_addr,MEMWB.read_data,MEMWB.write_reg);
         }
@@ -274,9 +333,9 @@ void MemoryStage(){
     else if (controlUnit.MemRead == 0 && controlUnit.MemWrite == 1) {
         if (isLoadOrStore(EXMEM.ins.opcode) == stores) {
             //store();
-            dataMem[EXMEM.ALUres>>2] = EXMEM.write_to_mem_val;
+            memory[EXMEM.ALUres>>2] = EXMEM.write_to_mem_val;
             //printf("DEBUG: //////Stored content in Reg number %d which was %d to memory location %d\n",EXMEM.write_to_mem_reg,EXMEM.write_to_mem_val, EXMEM.ALUres);
-            printf("DEBUG: ////// dataMem[%d] = %d\n",EXMEM.ALUres,dataMem[EXMEM.ALUres>>2]);
+            printf("DEBUG: ////// dataMem[%d] = %d\n",EXMEM.ALUres,memory[EXMEM.ALUres>>2]);
         }
         else  {
             printf("ERROR: Memorystage is not detecting whether to involve mem or not properly at #3 Opcode = %d.\n", EXMEM.ins.opcode);

@@ -17,7 +17,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b10;
       controlUnit.Jump = 0;
-      printf("R-format\n");
+      //printf("R-format\n");
       type = Rform;
     }
 
@@ -33,7 +33,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
       controlUnit.Jump = 0;
-      printf("LW-format\n");
+      //printf("LW-format\n");
       type = Loads;
     }
     else if (opcode == OPCODE_LB) {
@@ -46,7 +46,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
       controlUnit.Jump = 0;
-      printf("LW-format\n");
+      //printf("LW-format\n");
       type = Loads;
     }
     else if (opcode == OPCODE_LBU) {
@@ -59,7 +59,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
       controlUnit.Jump = 0;
-      printf("LW-format\n");
+      //printf("LW-format\n");
       type = Loads;
     }
     else if (opcode == OPCODE_LHU) {
@@ -72,7 +72,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
       controlUnit.Jump = 0;
-      printf("LW-format\n");
+      //printf("LW-format\n");
       type = Loads;
     }
     else if (opcode == OPCODE_LUI) {
@@ -85,7 +85,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
       controlUnit.Jump = 0;
-      printf("LW-format\n");
+      //printf("LW-format\n");
       type = Loads;
     }
 
@@ -100,7 +100,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
       controlUnit.Jump = 0;
-      printf("SW-format\n");
+      //printf("SW-format\n");
       type = stores;
     }
     else if (opcode == OPCODE_SB) {
@@ -113,7 +113,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
       controlUnit.Jump = 0;
-      printf("SW-format\n");
+      //printf("SW-format\n");
       type = stores;
     }
     else if (opcode == OPCODE_SH) {
@@ -126,7 +126,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0b00;
       controlUnit.Jump = 0;
-      printf("SW-format\n");
+      //printf("SW-format\n");
       type = stores;
     }
 
@@ -210,7 +210,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = -1;
       controlUnit.Jump = 1;
-      printf("Jump Type\n");
+      //printf("Jump Type\n");
       type = jumps;
     }
 
@@ -224,7 +224,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = 0;
       controlUnit.Jump = 1;
-      printf("Jump Type\n");
+      //printf("Jump Type\n");
       type = jumps;
     }
 
@@ -241,7 +241,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = -1;
       controlUnit.Jump = 0;
-      printf("I-format instructions\n");
+      //printf("I-format instructions\n");
       type = Iform;
     }
 
@@ -256,7 +256,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = -1;
       controlUnit.Jump = 0;
-      printf("I-format instructions\n");
+      //printf("I-format instructions\n");
       type = Iform;
     }
 
@@ -271,7 +271,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = -1;
       controlUnit.Jump = 0;
-      printf("I-format instructions\n");
+      //printf("I-format instructions\n");
       type = Iform;
     }
     else if (opcode == OPCODE_XORI) {
@@ -285,12 +285,12 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = -1;
       controlUnit.Jump = 0;
-      printf("I-format instructions\n");
+      //printf("I-format instructions\n");
       type = Iform;
     }
 
     else if (opcode == OPCODE_ORI) {
-        printf("\n \n \n ORI \n");
+    //printf("\n \n \n ORI \n");
       controlUnit.RegDst = 0;  //X in book
       controlUnit.ALUsrc = 1;
       controlUnit.MemToReg = 0;  //X in book
@@ -300,7 +300,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = -1;
       controlUnit.Jump = 0;
-      printf("I-format instructions\n");
+      //printf("I-format instructions\n");
       type = Iform;
     }
 
@@ -315,7 +315,7 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = -1;
       controlUnit.Jump = 0;
-      printf("I-format instructions\n");
+      //printf("I-format instructions\n");
       type = Iform;
     }
 
@@ -330,12 +330,12 @@ int setControls(uint16_t opcode){
       controlUnit.Branch = 0;
       controlUnit.ALUop = -1;
       controlUnit.Jump = 0;
-      printf("I-format instructions\n");
+      //printf("I-format instructions\n");
       type = Iform;
     }
 
     else {
-        printf("WARNING: Control lines not set.\n");
+        printf("ERROR: Control lines not set.\n");
         return -1;
     }
 

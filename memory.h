@@ -1,5 +1,6 @@
 #ifndef MEMORY_H
 #define MEMORY_H
+#include <stdint.h>
 
 //#define MEMSIZE 4096
 #define MEMSIZE 1200
@@ -18,5 +19,5 @@
 //TODO: declare write buffer. Block sized?
 
 uint32_t memory[MEMSIZE];    //Program memory
-int32_t dataMem[MEMSIZE];    //Data memory. TODO: Should this be signed or unsigned or does it matter? signed. as datamem can be neg
+//int32_t dataMem[MEMSIZE];    //Data memory. TODO: Should this be signed or unsigned or does it matter? signed. as datamem can be neg
 #endif

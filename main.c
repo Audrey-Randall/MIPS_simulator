@@ -117,10 +117,19 @@ int main() {
         regfile.regs[FP] = 3000;
         #endif // program1
 
-
+        uint32_t i=0;
         uint32_t endofprog = 0;
+
+    uint64_t k,j;
+    for (j=0; j<MEMSIZE; j++) {
+            printf("%d: %d\n",j, memory[j]);
+        }
+
+    printf("Memory[976]: %d\n",memory[976>>2]);
+    printf("Memory[976 actual]: %d\n",memory[244]);
+
     while(PC != 0) {
-        memset((void*)&controlUnit, 0, sizeof(controlUnit));
+         memset((void*)&controlUnit, 0, sizeof(controlUnit));
         FetchStage();
         DecodeStage();
         ExecuteStage();
@@ -129,14 +138,23 @@ int main() {
         WritebackStage();
         printf("ENDING PC: %d\n",PC);
         if(PC>>2 > 483){
-		printf("PC too high!");
-		break;
-	}
-
+            printf("PC too high!");
+	    }
+        for (i=0; i<31; i++) {
+            printf("Reg %d: %d ",i, regfile.regs[i]);
+        }
+        printf("Reg: 31, %d",regfile.regs[31]);
+        printf("Memory[976]: %d\n",memory[976>>2]);
         //Cleanup
         //PC++;  //if it wasn't messed with elsewhere
         //memset(&curIns, 0, sizeof(curIns));
     }
     printf("Loop exited\n");
-
+    //uint32_t k,j;
+    for (k=0; k<32; k++) {
+        printf("Reg %d: %d",k, regfile.regs[k]);
+    }
+    for (j=0; i=j<MEMSIZE; j++) {
+            printf("%d: %d\n",j, memory[j]);
+        }
 }
