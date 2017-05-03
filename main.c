@@ -120,7 +120,7 @@ int main() {
         uint32_t i=0;
         uint32_t endofprog = 0;
 
-    uint64_t k,j;
+    int k,j;
     for (j=0; j<MEMSIZE; j++) {
             printf("%d: %d\n",j, memory[j]);
         }
