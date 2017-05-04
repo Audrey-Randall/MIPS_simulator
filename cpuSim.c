@@ -10,7 +10,7 @@ void init(){
   memset(&IDEX, 0, sizeof(IDEX));
   memset(&EXMEM, 0, sizeof(EXMEM));
   memset(&MEMWB, 0, sizeof(MEMWB));
-  memset(memory, 0, MEMSIZE);
+  memset(memory, 0, MEMSIZE*sizeof(int32_t));
   memset(&regfile, 0, sizeof(regfile));
   BranchAddr = 0; //will be 0 in D, E, M, W unless the previous instruction was a branch. In F, will be 0 unless prev instruc was branch or intruc before that was branch
   amTagalong = 0; //I am the tagalong instruc that needs to be executed after a branch
@@ -33,6 +33,8 @@ int parseInput(char* inFile){
     char trash[500];
     if(sscanf(buf, "%s %s", instr, trash) < 2) {
       //printf("Line %d in input file became %s and %s\n", line, instr, trash);
+      instr[10] = 0;
+      memory[line] = (uint32_t)strtoul(instr, NULL, 16);
     } else {
       instr[10] = 0;
       memory[line] = (uint32_t)strtoul(instr, NULL, 16);
@@ -307,7 +309,7 @@ int32_t ALUfunct(int32_t v1, int32_t v2, uint8_t * err_p, uint8_t resReg) {
         default:
           printf("Instruction not found.");
           err = 1;
-          return;
+          return -1;
       }
   } //outer switch statement
   if (err) {

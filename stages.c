@@ -85,7 +85,7 @@ void FetchStage(){
     //2. Instruction itself is stored into IFID register.
     IFID.ins.instruct = ci;
     //3. PC incremented, stored to pipeline, for need in things like branch instruction
-    printf("\n\n\nmemory[%d]: 0x%08X-------------------------------------------------\n",(PC>>2)+1, memory[PC>>2]);
+    printf("\n\n\nmemory[%d] = line %d: 0x%08X-------------------------------------------------\n",(PC>>2), (PC>>2)+1,memory[PC>>2]);
     PC+=4;
     IFID.PC = PC;
     printf("FETCH: \n\tInstruction = 0x%x\n\tPC = %d\n", ci, IFID.PC-4);
@@ -212,7 +212,7 @@ void DecodeStage() {
             BranchUnit(zero,signext);
         }
         else if (IDEX.ins.opcode == OPCODE_BNE) {
-            zero = (v1-v2 != 0) ? 1 : 0; //if v1 = v2 ret 1, else ret 0
+            zero = (v1!=v2) ? 1 : 0; //if v1 = v2 ret 1, else ret 0
             BranchUnit(zero, signext);
         }
         else if (IDEX.ins.opcode == OPCODE_BLTZ) {
@@ -319,9 +319,15 @@ void MemoryStage(){
     //2. load word format
     else if (controlUnit.MemRead == 1 && controlUnit.MemWrite == 0) {
         if (isLoadOrStore(EXMEM.ins.opcode) == Loads) { //to double check
-            MEMWB.read_data = memory[EXMEM.write_addr>>2]; //load result into read_data output of mem
-            MEMWB.write_reg = EXMEM.write_reg; //location to write to
-            printf("DEBUG: ///memory location: %d, memory value: %d, register location: %d/n",EXMEM.write_addr,MEMWB.read_data,MEMWB.write_reg);
+	    if(EXMEM.write_reg == 0) {
+	        MEMWB.nopFlag = 1;
+		EXMEM.nopFlag = 1;
+	    }
+            else {
+		MEMWB.read_data = memory[EXMEM.write_addr>>2]; //load result into read_data output of mem
+		MEMWB.write_reg = EXMEM.write_reg; //location to write to
+                printf("DEBUG: ///memory location: %d, memory value: %d, register location: %d/n",EXMEM.write_addr,MEMWB.read_data,MEMWB.write_reg);
+	    }
         }
         else  {
             printf("ERROR: Memorystage is not detecting whether to involve mem or not properly at #2.\n");
@@ -335,7 +341,7 @@ void MemoryStage(){
             //store();
             memory[EXMEM.ALUres>>2] = EXMEM.write_to_mem_val;
             //printf("DEBUG: //////Stored content in Reg number %d which was %d to memory location %d\n",EXMEM.write_to_mem_reg,EXMEM.write_to_mem_val, EXMEM.ALUres);
-            printf("DEBUG: ////// dataMem[%d] = %d\n",EXMEM.ALUres,memory[EXMEM.ALUres>>2]);
+            printf("DEBUG: ////// memory[%d] = %d\n",EXMEM.ALUres,memory[EXMEM.ALUres>>2]);
         }
         else  {
             printf("ERROR: Memorystage is not detecting whether to involve mem or not properly at #3 Opcode = %d.\n", EXMEM.ins.opcode);
