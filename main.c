@@ -6,6 +6,7 @@
 #include "stages.h"
 #include <limits.h>
 
+uint32_t tinstructioncount =  0;
 //#define commandline
 #define codeblocks
 //#define additionlogic
@@ -125,9 +126,6 @@ int main() {
             printf("%d: %d\n",j, memory[j]);
         }
 
-    printf("Memory[976]: %d\n",memory[976>>2]);
-    printf("Memory[976 actual]: %d\n",memory[244]);
-
     while(PC != 0) {
          memset((void*)&controlUnit, 0, sizeof(controlUnit));
         FetchStage();
@@ -143,8 +141,10 @@ int main() {
         for (i=0; i<31; i++) {
             printf("Reg %d: %d ",i, regfile.regs[i]);
         }
-        printf("Reg: 31, %d",regfile.regs[31]);
-        printf("Memory[976]: %d\n",memory[976>>2]);
+
+        tinstructioncount++;
+        printf("\ntinstructioncount: %d\n",tinstructioncount);
+
         //Cleanup
         //PC++;  //if it wasn't messed with elsewhere
         //memset(&curIns, 0, sizeof(curIns));
@@ -157,4 +157,6 @@ int main() {
     for (j=0; i=j<MEMSIZE; j++) {
             printf("%d: %d\n",j, memory[j]);
         }
+        printf("\ntinstructioncount: %d\n",tinstructioncount);
+
 }
