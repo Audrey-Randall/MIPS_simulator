@@ -1,6 +1,7 @@
 #include "stages.h"
 #include "cpuSim.h"
 #include "control.h"
+#include "memory.h"
 
 void printCurrentInstruction(){
   if(IFID.ins.opcode==OPCODE_R){
@@ -319,17 +320,28 @@ void MemoryStage(){
     //2. load word format
     else if (controlUnit.MemRead == 1 && controlUnit.MemWrite == 0) {
         if (isLoadOrStore(EXMEM.ins.opcode) == Loads) { //to double check
-	    if(EXMEM.write_reg == 0) {
-	        MEMWB.nopFlag = 1;
-		EXMEM.nopFlag = 1;
-	    }
-            else {
-		MEMWB.read_data = memory[EXMEM.write_addr>>2]; //load result into read_data output of mem
-		MEMWB.write_reg = EXMEM.write_reg; //location to write to
-                printf("DEBUG: ///memory location: %d, memory value: %d, register location: %d/n",EXMEM.write_addr,MEMWB.read_data,MEMWB.write_reg);
-	    }
-        }
-        else  {
+    	    if(EXMEM.write_reg == 0) {
+    	        MEMWB.nopFlag = 1;
+    		      EXMEM.nopFlag = 1;
+    	    } else {
+    		      /* //Without cache:
+              MEMWB.read_data = memory[EXMEM.write_addr>>2]; //load result into read_data output of mem
+    		      MEMWB.write_reg = EXMEM.write_reg; //location to write to
+              */
+              //With cache:
+              unsigned int tag = 0;
+              int block_addr = 0;
+              int word_addr = 0;
+              int byte_addr = 0;
+              int start_mem_block = 0;
+              int isHit = 0;
+              //Read the data from memory into the data cache
+              readData(EXMEM.write_addr, &isHit, &tag, &block_addr, &word_addr, &byte_addr, &start_mem_block);
+              //Read FROM data cache
+              MEMWB.read_data = DCache[block_addr].data[word_addr];
+              printf("DEBUG: ///memory location: %d, memory value: %d, register location: %d/n",EXMEM.write_addr,MEMWB.read_data,MEMWB.write_reg);
+    	    }
+        }  else  {
             printf("ERROR: Memorystage is not detecting whether to involve mem or not properly at #2.\n");
             return;
         }
@@ -339,6 +351,9 @@ void MemoryStage(){
     else if (controlUnit.MemRead == 0 && controlUnit.MemWrite == 1) {
         if (isLoadOrStore(EXMEM.ins.opcode) == stores) {
             //store();
+            //if cache:
+            //writeData(uint32_t addr, int32_t data, int* isHit)
+            //if no cache:
             memory[EXMEM.ALUres>>2] = EXMEM.write_to_mem_val;
             //printf("DEBUG: //////Stored content in Reg number %d which was %d to memory location %d\n",EXMEM.write_to_mem_reg,EXMEM.write_to_mem_val, EXMEM.ALUres);
             printf("DEBUG: ////// memory[%d] = %d\n",EXMEM.ALUres,memory[EXMEM.ALUres>>2]);
@@ -391,8 +406,9 @@ void WritebackStage(){
             printf("Value to be written to register %d: %d\n",regfile.writereg, regfile.writeval);
 
         }
-        else { printf("ERROR: WBstage is not detecting whether to involve mem or not properly.\n");
-        return;
+        else {
+          printf("ERROR: WBstage is not detecting whether to involve mem or not properly.\n");
+          return;
         }
     }
     else printf("ERROR: WBstage is not detecting whether to involve mem or not properly.\n");
