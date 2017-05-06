@@ -139,8 +139,16 @@ typedef struct ALUUnit {
 ALU alu;
 Registerfile regfile;
 Ifid IFID;
+Ifid IFIDShadowIns1;
+Ifid IFIDShadowIns2;
+Ifid IFIDShadowIns3;
+Ifid IFIDShadowIns4;
+Ifid IFIDShadowIns5;
 Idex IDEX;
+Idex IDEXShadow;
 Exmem EXMEM;
+Exmem EXMEMShadow;
 Memwb MEMWB;
+Memwb MEMWBShadow;
 uint32_t PC; //global PC to be updated at the end of the last pipeline register
 #endif

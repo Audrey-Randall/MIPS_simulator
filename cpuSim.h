@@ -29,5 +29,6 @@ int32_t mux(int32_t zero, int32_t one, uint8_t ctrl);
 void store();
 int32_t load();
 
+uint32_t tinstructioncount;
 
 #endif

@@ -2,6 +2,10 @@
 #include "cpuSim.h"
 #include "control.h"
 
+//#define showworkingpipeline
+/*Leave this commented to see functioning aspect of program*/
+
+
 void printCurrentInstruction(){
   if(IFID.ins.opcode==OPCODE_R){
         printf("\t");
@@ -71,7 +75,14 @@ void printCurrentInstruction(){
 
   }
 
-void FetchStage(){
+
+
+
+void FetchStage(Ifid IFIDShadow, uint32_t instruc){
+    printf("\tFETCH instruction 0x%x\n\t", instruc);
+
+
+    #ifdef showworkingpipeline
     //branch control logic
     if (BranchAddr && amTagalong) {
       amTagalong = 0;
@@ -81,15 +92,20 @@ void FetchStage(){
 	BranchAddr = 0;
     }
     //1. Instruction is read from memory using the address in the PC
-    ci = memory[PC>>2];  //current instruction
+    //ci = memory[PC>>2];  //current instruction
     //2. Instruction itself is stored into IFID register.
-    IFID.ins.instruct = ci;
+    IFID.ins.instruct = instruc;
     //3. PC incremented, stored to pipeline, for need in things like branch instruction
-    printf("\n\n\nmemory[%d] = line %d: 0x%08X-------------------------------------------------\n",(PC>>2), (PC>>2)+1,memory[PC>>2]);
-    PC+=4;
+    //printf("memory[%d] = line %d: 0x%08X-------------------------------------------------\n",(PC>>2), (PC>>2)+1,memory[PC>>2]);
     IFID.PC = PC;
-    printf("FETCH: \n\tInstruction = 0x%x\n\tPC = %d\n", ci, IFID.PC-4);
+    //printf("\n\tInstruction = 0x%x\n\tPC = %d\n", IFID.ins.instruct, IFID.PC-4);
+
+    IFIDShadow = IFID; //duplicate
+    printf("\n1. The below shows that we have duplicated IFID into the IFID Shadow register for later use:\nIFIDShadow.ins.instruct (0x%x) = IFID.ins.instruct(0x%x)\n\n",IFIDShadow.ins.instruct,IFID.ins.instruct);
+    #endif
+
 }
+
 
 void printControls(){
   printf("Controls:  ALUop = %d, ALUsrc= %d, RegWrite = %d, MemWrite = %d, MemToReg = %d, MemRead = %d,PCsrc = %d, RegDst = %d, Branch = %d, Jump = %d\n",
@@ -105,30 +121,35 @@ int isLoadOrStore(uint16_t oc){
   return 0;
 }
 
-void DecodeStage() {
-    printf("DECODE: \n\t");
+void DecodeStage(Ifid IFIDShadow, uint32_t instruc){
+    printf("DECODE instruction 0x%x\n\t", instruc);
+
+
+
+    #ifdef showworkingpipeline
     //1. Instruction decode. Register numbers, imm fields, etc. supplied.
-    setCurIns(ci);
+    printf("\n Here, we take in the shadow register input, but since it's a 0, we will always get a sll 0 instruct. \nIFID.ins.instruct = 0x%x\n",IFIDShadow.ins.instruct);
+    setCurIns(IFIDShadow.ins.instruct);
     printCurrentInstruction();
 
     //branch variables
     uint8_t zero=0;
-    int32_t v1 = regfile.regs[IFID.ins.rs];
-    int32_t v2 = regfile.regs[IFID.ins.rt];
-    int32_t signext = signExt(IFID.ins.imm);
+    int32_t v1 = regfile.regs[IFIDShadow.ins.rs];
+    int32_t v2 = regfile.regs[IFIDShadow.ins.rt];
+    int32_t signext = signExt(IFIDShadow.ins.imm);
     printf("\tv1 = %d and v2 = %d\n", v1, v2);
 
     //TODO: check if jump instruc should make rest of stages be nops
 
 
     //2. Based off of this decoding, set control lines
-    setControls(IFID.ins.opcode);
+    setControls(IFIDShadow.ins.opcode);
     printf("\t");
     printControls();
 
     //3. Register numbers fed into register file.
-    regfile.readreg1 = IFID.ins.rs;
-    regfile.readreg2 = mux(IFID.ins.rt, IFID.ins.rd, controlUnit.RegDst);
+    regfile.readreg1 = IFIDShadow.ins.rs;
+    regfile.readreg2 = mux(IFIDShadow.ins.rt, IFIDShadow.ins.rd, controlUnit.RegDst);
     printf("decode stage: readreg1 = %d, readreg2 = %d\n",regfile.readreg1, regfile.readreg2);
 
     //4. Register values read and stored into pipeline register
@@ -141,16 +162,16 @@ void DecodeStage() {
     IDEX.ins.signextimm = signExt(IFID.ins.imm);
 
     //6. Pass everything else onward
-    IDEX.ins.instruct = IFID.ins.instruct;
-    IDEX.ins.opcode = IFID.ins.opcode;
-    IDEX.ins.rs = IFID.ins.rs;
-    IDEX.ins.rt = IFID.ins.rt;
-    IDEX.ins.rd = IFID.ins.rd;
-    IDEX.ins.shamt = IFID.ins.shamt;
-    IDEX.ins.funct = IFID.ins.funct;
-    IDEX.ins.imm = IFID.ins.imm;
-    IDEX.ins.addr = IFID.ins.addr;
-    IDEX.PC = IFID.PC; //again, this is the incremented one. not the current inst. If a jump changes it it gets reset later
+    IDEX.ins.instruct = IFIDShadow.ins.instruct;
+    IDEX.ins.opcode = IFIDShadow.ins.opcode;
+    IDEX.ins.rs = IFIDShadow.ins.rs;
+    IDEX.ins.rt = IFIDShadow.ins.rt;
+    IDEX.ins.rd = IFIDShadow.ins.rd;
+    IDEX.ins.shamt = IFIDShadow.ins.shamt;
+    IDEX.ins.funct = IFIDShadow.ins.funct;
+    IDEX.ins.imm = IFIDShadow.ins.imm;
+    IDEX.ins.addr = IFIDShadow.ins.addr;
+    IDEX.PC = IFIDShadow.PC; //again, this is the incremented one. not the current inst. If a jump changes it it gets reset later
     IDEX.nopFlag = 0;
 
     //7. to use later for stores
@@ -222,9 +243,17 @@ void DecodeStage() {
         else printf("Error with branching in decode stage. Please check logic.\n");
     }
     IDEX.PC = PC;
+
+    #endif
+
 }
 
-void ExecuteStage(){
+
+void ExecuteStage(Ifid IFIDShadow,uint32_t instruc){
+    printf("EXECUTE instruction 0x%x\n\t", instruc);
+
+
+    #ifdef showworkingpipeline
     int i;
     uint8_t err = 0;
 
@@ -256,14 +285,11 @@ void ExecuteStage(){
     EXMEM.ins.addr = IDEX.ins.addr;
     EXMEM.PC = IDEX.PC; //TODO: For instructions that change the PC, is this correct? yes since these instructions just set up the IDEX pc, and we need to copy it over
 
-    /*output of ALU will be as follows:
-    -1 for error
-    0 for successful R-format instruction
-    res for address of memory that needs to be loaded into a register or stored in memory.
-    */
-    /*NOTE THAT:
-    currently, there is a bit of a jumble with branch instructions -> these should be occurring in decode, not execute
-    */
+    //output of ALU will be as follows:
+    //-1 for error
+    //0 for successful R-format instruction
+    //res for address of memory that needs to be loaded into a register or stored in memory.
+    //
 
     //5. Stuff we'll need later for MEM and WB stages
     if (isLoadOrStore(IDEX.ins.opcode) == stores) {
@@ -290,10 +316,14 @@ void ExecuteStage(){
         printf("DEBUG:///PC after jump: %d and branchaddr %d\n",regfile.regs[EXMEM.ins.rs], BranchAddr);
         return;
     }
+    #endif // showworkingpipeline
 
 }
 
-void MemoryStage(){
+void MemoryStage(Ifid IFIDShadow,uint32_t instruc){
+    printf("MEMORY instruction 0x%x\n\t", instruc);
+
+    #ifdef showworkingpipeline
     if (EXMEM.nopFlag || controlUnit.Jump) {
         MEMWB.ALUres = EXMEM.ALUres;
         MEMWB.ins.instruct = EXMEM.ins.instruct;
@@ -363,9 +393,14 @@ void MemoryStage(){
     MEMWB.nopFlag = EXMEM.nopFlag;
     MEMWB.PC = EXMEM.PC;
 
-}
-void WritebackStage(){
+    #endif // showworkingpipeline
 
+}
+void WritebackStage(Ifid IFIDShadow,uint32_t instruc){
+    printf("WRITEBACK instruction 0x%x\n\t", instruc);
+
+
+    #ifdef showworkingpipeline
     if (MEMWB.nopFlag) return;
     if(controlUnit.Jump) return;
 
@@ -397,5 +432,7 @@ void WritebackStage(){
     }
     else printf("ERROR: WBstage is not detecting whether to involve mem or not properly.\n");
 
+    #endif // showworkingpipeline
 
 }
+

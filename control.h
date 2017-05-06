@@ -57,7 +57,6 @@
 #define jumps 4
 #define Iform 5
 
-
 uint8_t type;
 int BranchAddr;
 int amTagalong;
@@ -78,6 +77,16 @@ typedef struct ControlUnit {
   uint8_t Branch;
   uint8_t Jump;
 }ControlUnit;
+
+typedef struct pipelinedControl {
+    uint8_t fetch;
+    uint8_t decode;
+    uint8_t execute;
+    uint8_t memory;
+    uint8_t writeback;
+} pipelineControl;
+
+pipelineControl pipeCtl;
 
 ControlUnit controlUnit;
 uint32_t idx; //global to keep track of actual size of file

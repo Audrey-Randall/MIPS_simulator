@@ -3,8 +3,20 @@
 //#include "cpuSim.h"
 
 
+
+int setpipeline(pipelineControl pipeCtl) {
+    pipeCtl.fetch = 0;
+    pipeCtl.decode = 0;
+    pipeCtl.execute = 0;
+    pipeCtl.memory = 0;
+    pipeCtl.writeback = 0;
+
+}
+
+
 //Figure 4.22 tells how to implement this
 int setControls(uint16_t opcode){
+
 
     //R-formats
     if (opcode == OPCODE_R) {

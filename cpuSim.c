@@ -15,6 +15,8 @@ void init(){
   BranchAddr = 0; //will be 0 in D, E, M, W unless the previous instruction was a branch. In F, will be 0 unless prev instruc was branch or intruc before that was branch
   amTagalong = 0; //I am the tagalong instruc that needs to be executed after a branch
   PC = 0;
+  tinstructioncount =  0;
+
 }
 
 int parseInput(char* inFile){
@@ -39,6 +41,7 @@ int parseInput(char* inFile){
       instr[10] = 0;
       memory[line] = (uint32_t)strtoul(instr, NULL, 16);
     }
+    printf("memory[%d]: 0x%x\n",line,memory[line]);
     line++;
     memset(instr, 0, sizeof(instr));
   }
